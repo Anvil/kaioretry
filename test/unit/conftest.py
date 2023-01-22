@@ -5,6 +5,22 @@ import pytest
 import pytest_cases
 
 
+@pytest.fixture
+def ssleep(mocker):
+    """Mock time.sleep"""
+    return mocker.patch("time.sleep")
+
+
+@pytest.fixture
+def asleep(mocker):
+    """Mock asyncio.sleep, and check that it's been correctly awaited
+    in the end.
+    """
+    mock = mocker.patch("asyncio.sleep")
+    yield mock
+    assert mock.await_count == mock.call_count
+
+
 async def assert_async_result(result, expected):
     """Check that a given object, once awaited, returns a given
     expected result.
