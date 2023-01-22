@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "kaioretry"
+version = "0.1.0"
+description = "All in one retry and aioretry decorators"
+authors = ["Damien Nadé <anvil.github+kaioretry@livna.org>"]
+license = "LPGL"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.dev-dependencies]
+pytest = ">6"
+pytest-asyncio = "^0.20"
+pytest-mock = "^3.10"
+pytest-cases = "^3.6"
+pytest-cov = ">4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
