@@ -18,6 +18,12 @@ smartly kept to a very very strict minimum.
 And here we are then.
 
 
+# Documentation
+
+API Documentation is available on readthedocs:
+[https://kaioretry.readthedocs.io/en/latest/]
+
+
 ## TODO List
 
 * Add logging features
