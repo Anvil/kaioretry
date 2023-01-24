@@ -10,6 +10,13 @@ Welcome to kaioretry's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+.. autofunction:: kaioretry.retry
+.. autofunction:: kaioretry.aioretry
+
+.. automodule:: kaioretry.decorator
+   :members:
+.. automodule:: kaioretry.context
+   :members:
 
 
 Indices and tables
