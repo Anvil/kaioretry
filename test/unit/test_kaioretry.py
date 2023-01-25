@@ -13,11 +13,13 @@ def test_docstings(func):
 
 
 def randint():
+    """Return a random integer"""
     return random.randint(1, 10000)
 
 
 @pytest.mark.parametrize("attribute", ("retry", "aioretry"))
 def test_retry(exception, mocker, attribute):
+    """Test kaioretry.retry/aioretry delegation-to-Retry process"""
     retry_cls = mocker.patch("kaioretry.Retry", spec=kaioretry.Retry)
     context_cls = mocker.patch("kaioretry.Context")
     params = {param: randint()
