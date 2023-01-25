@@ -75,6 +75,10 @@ class Context:
                 "min_delay cannot be greater than max_delay. "
                 f"min given: {min_delay}. max given: {max_delay}")
         self.__max_delay = max_delay
+        self.__str = (
+            f"{self.__class__.__name__}("
+            f"tries={tries}, "
+            f"delay=({min_delay}<=({delay}+{jitter})*{backoff}<={max_delay}))")
 
     def update(self, delay: NonNegative) -> NonNegative:
         """Return the updated values for tries and delay.
@@ -106,6 +110,9 @@ class Context:
             await asyncio.sleep(delay)
             yield
             delay = self.update(delay)
+
+    def __str__(self) -> str:
+        return self.__str
 
 
 __all__ = ['Context']
