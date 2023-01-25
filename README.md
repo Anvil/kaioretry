@@ -28,12 +28,8 @@ API Documentation is available on readthedocs:
 
 * Add logging features
 * Stop messing up the stack trace
-* Complete Unit tests coverage.
 * Add unit tests pipelines
-~~* Add sphinx-generated documentation~~
 * Write a decent README
-~~* Publish documentation on readthedocs~~
 * Improve documentation display on the RTD
-* Publish package to pypi
-* Lower requirements to python 3.10 if possible (and i feel like it)
-* Lower requirements to python 3.9 if possible (and i feel like it)
+* Lower requirements to python 3.10 if possible (and if i feel like it)
+* Lower requirements to python 3.9 if possible (and if i feel like it)
