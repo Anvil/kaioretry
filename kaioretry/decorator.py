@@ -44,6 +44,13 @@ class Retry:
             context: Context = DEFAULT_CONTEXT) -> None:
         self.__exceptions = exceptions
         self.__context = context
+        if isinstance(exceptions, type(BaseException)):
+            exc_str = exceptions.__name__
+        else:
+            exc_str = ", ".join(
+                exception.__name__
+                for exception in cast(ExceptionList, exceptions))
+        self.__str = f"{self.__class__.__name__}({exc_str}, {context})"
 
     def retry(self, func: Callable[FuncParam, FuncRetVal]) \
         -> Callable[FuncParam, FuncRetVal]:
@@ -107,3 +114,6 @@ class Retry:
         if asyncio.iscoroutinefunction(func):
             return cast(Callable[FuncParam, FuncRetVal], self.aioretry(func))
         return self.retry(func)
+
+    def __str__(self) -> str:
+        return self.__str
