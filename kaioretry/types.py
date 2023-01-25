@@ -4,7 +4,9 @@
 from typing import Union, Type, TypeAlias, TypeVar, ParamSpec
 
 
-Exceptions: TypeAlias = tuple[Type[BaseException], ...] | Type[BaseException]
+ExceptionT: TypeAlias = Type[BaseException]
+ExceptionList: TypeAlias = tuple[ExceptionT, ...]
+Exceptions: TypeAlias = ExceptionList | ExceptionT
 
 
 Number: TypeAlias = int | float
