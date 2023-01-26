@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Make the decoration have the decorated docstring
+
 ## [0.2.0] - 2023-01-26
 
 ### Added

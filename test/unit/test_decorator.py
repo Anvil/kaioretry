@@ -16,6 +16,7 @@ def random_string(length=10):
 def configure_callable_mock(mock):
     """Configure a mock to act as a regularly-defined function"""
     mock.__name__ = random_string()
+    mock.__doc__ = random_string()
 
 
 def test_retry(mocker, exception):
@@ -31,6 +32,7 @@ def test_retry(mocker, exception):
     retryable = retry.retry(mock)
 
     assert retryable is not mock
+    assert retryable.__doc__ == mock.__doc__
     assert retryable() == result
     assert mock.call_count == len(side_effect)
     assert logger.method_calls
@@ -52,6 +54,7 @@ async def test_aioretry(mocker, exception, any_mock):
     coro = retryable()
 
     assert retryable is not any_mock
+    assert retryable.__doc__ == any_mock.__doc__
     assert isawaitable(coro)
     assert await coro == result
     assert any_mock.call_count == len(side_effect)

@@ -3,6 +3,7 @@
 import asyncio
 import inspect
 import logging
+import functools
 
 from typing import Callable, Awaitable, cast, Any, NoReturn
 
@@ -82,6 +83,8 @@ class Retry:
         are exhausted.
         """
         # pylint: disable=inconsistent-return-statements
+
+        @functools.wraps(func)
         def _decorated(*args: FuncParam.args,
                        **kwargs: FuncParam.kwargs) -> FuncRetVal:
             for _ in self.__context:
@@ -117,6 +120,8 @@ class Retry:
             as the original function's
 
         """
+
+        @functools.wraps(func)
         async def _decorated(
                 *args: FuncParam.args, **kwargs: FuncParam.kwargs) \
                 -> FuncRetVal:
