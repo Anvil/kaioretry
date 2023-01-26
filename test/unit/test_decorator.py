@@ -18,33 +18,36 @@ def configure_callable_mock(mock):
     mock.__name__ = random_string()
 
 
-def test_retry(exception, mocker):
+def test_retry(mocker, exception):
     """Test for retry until success"""
     result = randint(1, 10000000)
     side_effect = [exception] * randint(1, 10) + [result]
+    logger = mocker.MagicMock()
 
     mock = mocker.MagicMock(side_effect=side_effect)
     configure_callable_mock(mock)
 
-    retry = Retry(exception)
+    retry = Retry(exception, logger=logger)
     retryable = retry.retry(mock)
 
     assert retryable is not mock
     assert retryable() == result
     assert mock.call_count == len(side_effect)
+    assert logger.method_calls
 
 
-async def test_aioretry(exception, any_mock):
+async def test_aioretry(mocker, exception, any_mock):
     """Test that Retry.aioretry works with both functions and
     coroutine functions.
     """
     result = randint(1, 10000000)
     side_effect = [exception] * randint(1, 10) + [result]
+    logger = mocker.MagicMock()
 
     any_mock.side_effect = side_effect
     configure_callable_mock(any_mock)
 
-    retry = Retry(exception)
+    retry = Retry(exception, logger=logger)
     retryable = retry.aioretry(any_mock)
     coro = retryable()
 
@@ -52,6 +55,7 @@ async def test_aioretry(exception, any_mock):
     assert isawaitable(coro)
     assert await coro == result
     assert any_mock.call_count == len(side_effect)
+    assert logger.method_calls
 
 
 async def test_retry_final_failure(exception, mock, assert_result):
