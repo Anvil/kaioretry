@@ -26,7 +26,6 @@ API Documentation is available on readthedocs:
 
 ## TODO List
 
-* Add logging features
 * Stop messing up the stack trace
 * Add unit tests pipelines
 * Write a decent README
