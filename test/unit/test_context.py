@@ -1,6 +1,7 @@
 """kaioretry.context.Context class unit tests"""
 
 import random
+import logging
 import pytest
 import pytest_cases
 from kaioretry.context import Context
@@ -47,6 +48,16 @@ async def test_context_tries(assert_length, sleep, tries):
     context = Context(tries=tries)
     await assert_length(context, tries)
     assert sleep.call_count == tries - 1
+
+
+async def test_context_logging(mocker, assert_length, sleep):
+    """Test that the passed logger is actually used"""
+    tries = random.randint(1, 10)
+    logger = mocker.MagicMock(spec=logging.Logger)
+    context = Context(tries=tries, logger=logger)
+    await assert_length(context, tries)
+    sleep.assert_called()
+    assert logger.method_calls
 
 
 @pytest.mark.parametrize("jitter", (0, random.randint(2, 10)))
