@@ -3,6 +3,7 @@
 import time
 import random
 import asyncio
+import logging
 
 from typing import AsyncGenerator, Generator, cast, Callable
 
@@ -44,7 +45,13 @@ class Context:
     :param min_delay: the minimum value allowed for delay. Cannot be
         negative.
 
+    :raises ValueError: if tries, min_delay or max_delay have incorrect values.
+    :raises TypeError: if jitter is neither a Number or a tuple.
     """
+
+    # pylint: disable=too-many-instance-attributes
+
+    DEFAULT_LOGGER = logging.getLogger(__name__)
 
     @classmethod
     def __make_jitter(cls, jitter: Jitter) -> JitterFunc:
@@ -59,7 +66,8 @@ class Context:
     def __init__(self, *, tries: int = -1, delay: NonNegative = 0,
                  backoff: Number = 1, jitter: Jitter = 0,
                  max_delay: NonNegative | None = None,
-                 min_delay: NonNegative = 0) -> None:
+                 min_delay: NonNegative = 0,
+                 logger: logging.Logger = DEFAULT_LOGGER) -> None:
         if tries == 0:
             raise ValueError("tries value cannot be 0")
         self.__tries = tries
@@ -79,6 +87,7 @@ class Context:
             f"{self.__class__.__name__}("
             f"tries={tries}, "
             f"delay=({min_delay}<=({delay}+{jitter})*{backoff}<={max_delay}))")
+        self.__logger = logger
 
     def update(self, delay: NonNegative) -> NonNegative:
         """Return the updated values for tries and delay.
@@ -99,6 +108,7 @@ class Context:
         yield
         tries, delay = self.__tries, self.__delay
         while tries := tries - 1:
+            self.__logger.info("sleeping %s seconds", delay)
             time.sleep(delay)
             yield
             delay = self.update(delay)
@@ -107,6 +117,7 @@ class Context:
         yield
         tries, delay = self.__tries, self.__delay
         while tries := tries - 1:
+            self.__logger.info("sleeping %s seconds", delay)
             await asyncio.sleep(delay)
             yield
             delay = self.update(delay)
