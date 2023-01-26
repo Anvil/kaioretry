@@ -1,7 +1,7 @@
 """Custom types used by kaioretry"""
 
 
-from typing import Union, Type, TypeAlias, TypeVar, ParamSpec
+from typing import Union, Type, TypeAlias, TypeVar, ParamSpec, Callable, Any
 
 
 ExceptionT: TypeAlias = Type[BaseException]
@@ -23,3 +23,5 @@ Jitter: TypeAlias = Union[Number, tuple[Number, Number]]
 
 FuncParam = ParamSpec('FuncParam')
 FuncRetVal = TypeVar('FuncRetVal')
+
+Function: TypeAlias = Callable[..., Any]
