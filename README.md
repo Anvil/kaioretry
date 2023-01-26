@@ -1,5 +1,8 @@
 # KaioRetry
 
+[![PyPI version](https://img.shields.io/pypi/v/kaioretry?logo=pypi&style=plastic)](https://pypi.python.org/pypi/kaioretry/)
+
+
 KaioRetry is (yet another) retry decorator implementation, which is
 clearly inspired by the original
 [retry](https://pypi.org/project/retry) module and is actually
