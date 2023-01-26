@@ -2,10 +2,11 @@
 
 import asyncio
 import inspect
+import logging
 
-from typing import Callable, Awaitable, cast
+from typing import Callable, Awaitable, cast, Any, NoReturn
 
-from .types import Exceptions, FuncParam, FuncRetVal
+from .types import Exceptions, ExceptionList, FuncParam, FuncRetVal, Function
 from .context import Context
 
 
@@ -37,13 +38,17 @@ class Retry:
 
     """
 
+    DEFAULT_LOGGER = logging.getLogger(__name__)
+
     DEFAULT_CONTEXT = Context(tries=-1, delay=0)
 
     def __init__(
             self, /, exceptions: Exceptions = Exception, *,
-            context: Context = DEFAULT_CONTEXT) -> None:
+            context: Context = DEFAULT_CONTEXT,
+            logger: logging.Logger = DEFAULT_LOGGER) -> None:
         self.__exceptions = exceptions
         self.__context = context
+        self.__logger = logger
         if isinstance(exceptions, type(BaseException)):
             exc_str = exceptions.__name__
         else:
@@ -51,6 +56,22 @@ class Retry:
                 exception.__name__
                 for exception in cast(ExceptionList, exceptions))
         self.__str = f"{self.__class__.__name__}({exc_str}, {context})"
+
+    def __log(self, level: int, fmt: str, *args: Any) -> None:
+        self.__logger.log(level, f"{self}: {fmt}", *args)
+
+    def __caught_error(self, func: Function, error: BaseException) -> None:
+        self.__log(
+            logging.WARN, "%s caught while running %s: %s.",
+            error.__class__.__name__, func.__name__, error)
+
+    def __final_error(self, func: Function, error: BaseException) -> NoReturn:
+        self.__log(logging.WARN, "%s failed to complete", func.__name__)
+        raise error
+
+    def __success(self, func: Function) -> None:
+        self.__log(
+            logging.INFO, "%s has succesfully completed", func.__name__)
 
     def retry(self, func: Callable[FuncParam, FuncRetVal]) \
         -> Callable[FuncParam, FuncRetVal]:
@@ -60,18 +81,22 @@ class Retry:
         raises an exception, until number of tries from the context
         are exhausted.
         """
+        # pylint: disable=inconsistent-return-statements
         def _decorated(*args: FuncParam.args,
                        **kwargs: FuncParam.kwargs) -> FuncRetVal:
             for _ in self.__context:
                 try:
-                    return func(*args, **kwargs)
+                    result = func(*args, **kwargs)
+                    self.__success(func)
+                    return result
                 # It does not matter if it's broad :p this is user
                 # configuration.
                 # pylint: disable=broad-except
                 except self.__exceptions as error:
+                    self.__caught_error(func, error)
                     last_error = error
                     continue
-            raise last_error
+            self.__final_error(func, last_error)
 
         return _decorated
 
@@ -100,12 +125,14 @@ class Retry:
                     result = func(*args, **kwargs)
                     if inspect.isawaitable(result):
                         result = await result
+                    self.__success(func)
                     return cast(FuncRetVal, result)
                 # pylint: disable=broad-except
                 except self.__exceptions as error:
+                    self.__caught_error(func, error)
                     last_error = error
                     continue
-            raise last_error
+            self.__final_error(func, last_error)
 
         return _decorated
 
