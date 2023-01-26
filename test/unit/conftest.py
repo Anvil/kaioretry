@@ -1,8 +1,15 @@
 """Common unit tests fixtures"""
 
 import inspect
+from unittest.mock import MagicMock, AsyncMock
 import pytest
 import pytest_cases
+
+
+@pytest.fixture(params=(MagicMock, AsyncMock))
+def any_mock(request):
+    """Provide a {Magic,Async}mock"""
+    return request.param()
 
 
 @pytest.fixture
@@ -36,19 +43,17 @@ async def assert_sync_result(result, expected):
     assert result == expected
 
 
-@pytest_cases.fixture(
-    unpack_into="mock, assert_result",
-    params=("sync", "async"))
-def just_a_mock(request, mocker):
+@pytest_cases.fixture(unpack_into="mock, assert_result")
+def just_a_mock(any_mock):
+    # pylint: disable=redefined-outer-name
     """Give a sync or async mock, with a matching coroutine function
     able to check its result.
     """
-    if request.param == "sync":
-        yield mocker.MagicMock(), assert_sync_result
+    if isinstance(any_mock, AsyncMock):
+        yield any_mock, assert_async_result
+        assert any_mock.await_count == any_mock.call_count
     else:
-        mock = mocker.AsyncMock()
-        yield mock, assert_async_result
-        assert mock.await_count == mock.call_count
+        yield any_mock, assert_sync_result
 
 
 @pytest.fixture
