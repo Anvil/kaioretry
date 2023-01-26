@@ -7,6 +7,9 @@ from .context import Context
 from .decorator import Retry
 
 
+__version__ = "0.2.0"
+
+
 RETRY_PARAMS_DOCSTRING = """
 
     :param exceptions: exceptions classes that will trigger another

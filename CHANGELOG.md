@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2023-01-26
+
 ### Added
 
 - Basic logging features to Context and Retry classes
