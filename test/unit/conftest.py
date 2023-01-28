@@ -1,9 +1,16 @@
 """Common unit tests fixtures"""
 
 import inspect
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
+
 import pytest
 import pytest_cases
+
+
+# This is a copy of Lib/unit/mock,epy from github, since my local
+# python 3.11.1 does not have iso-functionning MagicMock and
+# AsyncMock.
+from .mock import AsyncMock
 
 
 @pytest.fixture(params=(MagicMock, AsyncMock))
