@@ -7,6 +7,7 @@ import pytest
 
 from kaioretry import Retry, Context
 
+
 def random_string(length=10):
     """Return a random string"""
     letters = string.ascii_lowercase
@@ -15,7 +16,7 @@ def random_string(length=10):
 
 def configure_callable_mock(mock):
     """Configure a mock to act as a regularly-defined function"""
-    mock.__name__ = random_string()
+    mock.__qualname__ = mock.__name__ = random_string()
     mock.__doc__ = random_string()
 
 
@@ -82,6 +83,7 @@ async def test_retry_final_failure(exception, mock, assert_result):
 
 async def test_retry___call__(exception, any_mock):
     """Test that __call__ return a same-nature decorated function"""
+    configure_callable_mock(any_mock)
     retry = Retry(exception)
     retryable = retry(any_mock)
 
