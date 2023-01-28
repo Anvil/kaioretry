@@ -7,16 +7,27 @@ import pytest
 import pytest_cases
 
 
-# This is a copy of Lib/unit/mock,epy from github, since my local
+# This is a copy of Lib/unit/mock.py from github, since my local
 # python 3.11.1 does not have iso-functionning MagicMock and
-# AsyncMock.
-from .mock import AsyncMock
+# AsyncMock. This copy includes the fix for
+# create_autospec(async_def), which is addressed by:
+# https://github.com/python/cpython/pull/94962
+from .mock import AsyncMock, create_autospec
 
 
-@pytest.fixture(params=(MagicMock, AsyncMock))
+def __f(x=1, y=2, z=3):
+    return 10
+
+
+async def __g(x=1, y=2, z=3):
+    return 10
+
+
+@pytest.fixture(params=(__f, __g))
 def any_mock(request):
     """Provide a {Magic,Async}mock"""
-    return request.param()
+    mock = create_autospec(request.param)
+    return mock
 
 
 @pytest.fixture
