@@ -32,7 +32,6 @@ API Documentation is available on readthedocs:
 
 ## TODO List
 
-* Stop messing up the stack trace
 * Add unit tests pipelines
 * Write a decent README
 * Improve documentation display on the RTD

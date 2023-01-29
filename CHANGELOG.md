@@ -5,7 +5,8 @@
 ## [0.3.0] - 2023-01-29
 
 ### Fixed
-- Make the decoration have the decorated docstring
+- Make the decoration have the decorated docstring and signature for
+  introspection.
 
 ## [0.2.0] - 2023-01-26
 
