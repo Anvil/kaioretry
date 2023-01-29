@@ -1,0 +1,14 @@
+#!/bin/bash
+# 
+
+[[ $# -eq 1 ]] || return
+
+version=$1
+
+poetry version "$version"
+
+sed -i "s/\(__version__ = \+\)\(.\).*/\1\2$version\2/" kaioretry/__init__.py
+
+date=$(date +%Y-%m-%d)
+
+sed -i "s/## \[Unreleased\]/&\n\n## [$version] - $date/" CHANGELOG.md

@@ -1,0 +1,21 @@
+#!/bin/bash
+set -ex
+
+branch=$(git branch --show-current)
+
+[[ $branch != main ]]
+
+git push --all
+
+git rebase --autostash main || git rebase --abort
+
+git diff main -- CHANGELOG.md | grep -q '^+'
+
+git checkout main
+git merge --no-ff "$branch"
+git show-branch -a
+
+read && {
+    git branch -D "$branch"
+    git push --delete origin "$branch"
+}

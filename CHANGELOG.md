@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- tools/merge and tools/set-version scripts
+
 ### Changed
 - Update overall docstrings
 - Opt out of typing module when deprecated
