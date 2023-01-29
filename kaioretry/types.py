@@ -1,10 +1,11 @@
 """Custom types used by kaioretry"""
 
 
-from typing import Type, TypeAlias, TypeVar, ParamSpec, Callable, Any
+from typing import TypeAlias, TypeVar, ParamSpec, Any
+from collections.abc import Callable
 
 
-ExceptionT: TypeAlias = Type[BaseException]
+ExceptionT: TypeAlias = type[BaseException]
 ExceptionList: TypeAlias = tuple[ExceptionT, ...]
 Exceptions: TypeAlias = ExceptionList | ExceptionT
 

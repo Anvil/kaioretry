@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Changed
+- Update overall docstrings
+- Opt out of typing module when deprecated
 - Refactor kaioretry.retry and kaioretry.aioretry through another
   decorator.
 - Expose logger parameter in kaioretry.retry and kaioretry.aioretry

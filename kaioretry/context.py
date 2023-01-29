@@ -5,7 +5,8 @@ import random
 import asyncio
 import logging
 
-from typing import AsyncGenerator, Generator, cast, Callable
+from typing import cast
+from collections.abc import Callable, Generator, AsyncGenerator
 
 from .types import NonNegative, Number, Jitter
 
@@ -18,10 +19,12 @@ class Context:
     """The Retry Context will maintain the number of tries and the
     delay between those tries.
 
-    It can act as both a Generator and an AsyncGenerator, and can be
-    reused, multiple times, even with multiple Retry instances.
+    It can act as both a :py:class:`Generator` and an
+    :py:class:`AsyncGenerator`, and can be reused, multiple times,
+    even with multiple :py:class:`~kaioretry.retry.Retry` instances.
 
-    The Retry objects will iterate over Context, synchronously, or
+    The :py:class:`~kaioretry.retry.Retry` objects will iterate over
+    :py:class:`~kaioretry.context.Context`, synchronously, or
     asynchronously, depending of the nature of the decorated function.
 
     :param tries: the maxi number of iterations (a.k.a.: tries,
@@ -43,15 +46,22 @@ class Context:
         (the default), then delay is unlimited. Cannot be negative.
 
     :param min_delay: the minimum value allowed for delay. Cannot be
-        negative.
+        negative. Default is 0.
+
+    :param logger: the :py:class:`logging.Logger` object to which the
+        log messages will be sent to.
 
     :raises ValueError: if tries, min_delay or max_delay have incorrect values.
     :raises TypeError: if jitter is neither a Number or a tuple.
+
     """
 
     # pylint: disable=too-many-instance-attributes
 
-    DEFAULT_LOGGER = logging.getLogger(__name__)
+    DEFAULT_LOGGER: logging.Logger = logging.getLogger(__name__)
+    """The :py:class:`logging.Logger` object that will be used if none
+    are provided to the constructor.
+    """
 
     @classmethod
     def __make_jitter(cls, jitter: Jitter) -> JitterFunc:
