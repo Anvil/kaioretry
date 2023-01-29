@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2023-01-29
+
 ### Added
 - tools/merge and tools/set-version scripts
 
