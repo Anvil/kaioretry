@@ -1,6 +1,8 @@
 """Retry decorator to automatically call a function again on errors"""
 
-from typing import Optional, Callable, Awaitable, Union
+import logging
+from typing import Awaitable
+from collections.abc import Callable
 
 from .types import Exceptions, NonNegative, Number, Jitter, FuncParam, FuncRetVal
 from .context import Context
@@ -11,13 +13,19 @@ __version__ = "0.3.0"
 
 
 RETRY_PARAMS_DOCSTRING = """
-
     :param exceptions: exceptions classes that will trigger another
         try. Other exceptions raised by the decorated function will
         not trigger a retry. The value of the exceptions parameters
-        can be eiher an Exception or a tuple of Exception (actually,
+        can be either an :py:class:`Exception` class or a
+        :py:class:`tuple` of :py:class:`Exception` classes (actually,
         whatever is suitable for an except clause). The default is the
-        Exception class, which means any error will trigger a new try.
+        :py:class:`Exception` class, which means any error will
+        trigger a new try.
+
+    :param tries: the maxi number of iterations (a.k.a.: tries,
+        function calls) to perform before exhaustion. A negative value
+        means infinite. 0 is forbidden, since it would mean "don't
+        run" at all.
 
     :param delay: the initial number of seconds to wait between two
         iterations. It must be non-negative. Default is 0.
@@ -29,49 +37,86 @@ RETRY_PARAMS_DOCSTRING = """
     :param jitter: extra seconds added to delay between
         iterations. Default: 0.
 
-    :param jitter: extra seconds added to delay between attempts. default: 0.
-                   fixed if a number, random if a range tuple (min, max)
     :param max_delay: the maximum value of delay. default: None (no limit).
 
-    :returns: a retry decorator for regular (non-coroutine) functions.
+    :param min_delay: the minimum value allowed for delay. Cannot be
+        negative. Default is 0.
+
+    :param logger: the :py:class:`logging.Logger` object to which the
+        log messages will be sent to.
+
+    :raises ValueError: if tries, min_delay or max_delay have incorrect values.
+    :raises TypeError: if jitter is neither a Number or a tuple.
 """
 
 
-# pylint: disable=too-many-arguments
+def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
+    -> Callable[[Exceptions, int, NonNegative, Number, Jitter,
+                 NonNegative | None, NonNegative, logging.Logger],
+                Callable[FuncParam, FuncRetVal]]:
+    """Create a function that will accept a bunch of parameters and
+    create the matching :py:class:`Retry` and :py:class:`Context`
+    objects, in order to be compatible with the origin retry module.
 
+    This function avoids the duplication and double maintenance of
+    :py:func:`retry` and :py:func:`aioretry` signatures.
 
-def retry(
-        exceptions: Exceptions = Exception, tries: int = -1,
-        delay: NonNegative = 0, backoff: Number = 1,
-        jitter: Jitter = 0,  max_delay: NonNegative | None = None,
-        min_delay: NonNegative = 0) -> Callable[
-            [Callable[FuncParam, FuncRetVal]],
-            Callable[FuncParam, FuncRetVal]]:
-    """Returns a retry decorator, suitable for regular functions."""
-    context = Context(
-        tries=tries, delay=delay, backoff=backoff, jitter=jitter,
-        max_delay=max_delay, min_delay=min_delay)
-    return Retry(exceptions=exceptions, context=context).retry
+    :param func: a function that takes a :py:class:`Retry` object as
+        parameter and provides a decorator as a result.
 
+    :returns: a new function that accepts what is basically the
+        union-set of Retry and Context constructors.
 
-def aioretry(
-        exceptions: Exceptions = Exception, tries: int = -1,
-        delay: NonNegative = 0, backoff: Number = 1,
-        jitter: Jitter = 0,  max_delay: NonNegative | None = None,
-        min_delay: NonNegative = 0) -> Callable[
-            [Callable[FuncParam, FuncRetVal] | Callable[FuncParam, Awaitable[FuncRetVal]]],
-            Callable[FuncParam, Awaitable[FuncRetVal]]]:
+    """
     # pylint: disable=too-many-arguments
-    """Returns a retry decorator, suitable for coroutine functions."""
-    context = Context(
-        tries=tries, delay=delay, backoff=backoff, jitter=jitter,
-        max_delay=max_delay, min_delay=min_delay)
-    return Retry(exceptions=exceptions, context=context).aioretry
+    def decoration(
+            exceptions: Exceptions = Exception, tries: int = -1,
+            delay: NonNegative = 0, backoff: Number = 1,
+            jitter: Jitter = 0,  max_delay: NonNegative | None = None,
+            min_delay: NonNegative = 0,
+            logger: logging.Logger = Retry.DEFAULT_LOGGER) \
+            -> Callable[FuncParam, FuncRetVal]:
+        context = Context(
+            tries=tries, delay=delay, backoff=backoff, jitter=jitter,
+            max_delay=max_delay, min_delay=min_delay, logger=logger)
+        retry_obj = Retry(
+            exceptions=exceptions, context=context, logger=logger)
+        return func(retry_obj)
 
-
-for func in [retry, aioretry]:  # pragma: nocover
     if func.__doc__ is not None:
-        func.__doc__ += RETRY_PARAMS_DOCSTRING
+        decoration.__doc__ = func.__doc__.replace(
+            "%PARAMS%", RETRY_PARAMS_DOCSTRING)
+    return decoration
 
 
-__all__ = ['Retry', 'Context', 'retry']
+@_make_decorator
+def retry(retry_obj: Retry) -> Callable[[Callable[FuncParam, FuncRetVal]],
+                                        Callable[FuncParam, FuncRetVal]]:
+    """Returns a retry decorator, suitable for regular functions.
+
+    %PARAMS%
+
+    :returns: a retry decorator for regular (non-coroutine) functions.
+
+    """
+    return retry_obj.retry
+
+
+@_make_decorator
+def aioretry(retry_obj: Retry) -> Callable[
+        [Callable[FuncParam, FuncRetVal] |
+         Callable[FuncParam, Awaitable[FuncRetVal]]],
+        Callable[FuncParam, Awaitable[FuncRetVal]]]:
+    """Returns a retry decorator, suitable for both regular functions
+    and coroutine functions. The decoration will turn the original
+    function to a coroutine function.
+
+    %PARAMS%
+
+    :returns: a retry decorator that generates coroutines functions.
+
+    """
+    return retry_obj.aioretry
+
+
+__all__ = ['Retry', 'Context', 'retry', 'aioretry']

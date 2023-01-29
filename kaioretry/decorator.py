@@ -4,7 +4,8 @@ import asyncio
 import inspect
 import logging
 
-from typing import Callable, Awaitable, cast, Any, NoReturn
+from typing import Awaitable, cast, Any, NoReturn
+from collections.abc import Callable
 
 import decorator
 
@@ -21,28 +22,42 @@ class Retry:
     automatically be retried until the number of tries is exhausted.
 
     Functions can either be decorated by the retry method, the
-    aioretry method, or by the object itself. If the object is used as
+    aioretry method, or by the object itself. If the object sed as
     decorator, an heuristic will attempt to determine what is the best
     alternative (retry or aioretry), depending of the nature of the
     function and the context of a event loop.
 
-    :param exceptions: exceptions classes that will trigger another
-        try. Other exceptions raised by the decorated function will
-        not trigger a retry. The value of the exceptions parameters
-        can be eiher an Exception or a tuple of Exception or whatever
-        is suitable for an except clause. The default is the Exception
-        class, which means any error will trigger a new try.
+    :param exceptions: :py:class:`Exception` classes that will trigger
+        another try. Other exceptions raised by the decorated function
+        will not trigger a retry. The value of the exceptions
+        parameters can be either an :py:class:`Exception` class or a
+        :py:class:`tuple` of :py:class:`Exception` classes or whatever
+        is suitable for an except clause. The default is the
+        :py:class:`Exception` class, which means any error will
+        trigger a new try.
 
-    :param context: a Context object that will be used to maintain try
-        count and the delay between them. If omitted, a Context with
-        an inifite unmber of tries and no delay betwen them will be
-        used.
+    :param context: a :py:class:`~kaioretry.context.Context` object
+        that will be used to maintain try count and the delay between
+        them. If omitted, a :py:class:`~kaioretry.context.Context`
+        with an infinite nunmber of tries and no delay betwen them
+        will be used.
+
+    :param logger: the :py:class:`logging.Logger` to which the log
+        messages will be sent to.
 
     """
 
-    DEFAULT_LOGGER = logging.getLogger(__name__)
+    DEFAULT_LOGGER: logging.Logger = logging.getLogger(__name__)
+    """The :py:class:`logging.Logger` object that will be used if none
+    are provided to the constructor.
+    """
 
-    DEFAULT_CONTEXT = Context(tries=-1, delay=0)
+    DEFAULT_CONTEXT: Context = Context(tries=-1, delay=0)
+    """A default :py:class:`~kaioretry.context.Context` that will be
+    used if none are provided to the constructor.
+
+    It will provide an infinity of tries with no delay between them.
+    """
 
     def __init__(
             self, /, exceptions: Exceptions = Exception, *,
