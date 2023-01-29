@@ -59,7 +59,7 @@ def aioretry(
         delay: NonNegative = 0, backoff: Number = 1,
         jitter: Jitter = 0,  max_delay: NonNegative | None = None,
         min_delay: NonNegative = 0) -> Callable[
-            [Callable[FuncParam, Union[Awaitable[FuncRetVal], FuncRetVal]]],
+            [Callable[FuncParam, FuncRetVal] | Callable[FuncParam, Awaitable[FuncRetVal]]],
             Callable[FuncParam, Awaitable[FuncRetVal]]]:
     # pylint: disable=too-many-arguments
     """Returns a retry decorator, suitable for coroutine functions."""

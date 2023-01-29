@@ -3,9 +3,10 @@
 import asyncio
 import inspect
 import logging
-import functools
 
 from typing import Callable, Awaitable, cast, Any, NoReturn
+
+import decorator
 
 from .types import Exceptions, ExceptionList, FuncParam, FuncRetVal, Function
 from .context import Context
@@ -74,6 +75,24 @@ class Retry:
         self.__log(
             logging.INFO, "%s has succesfully completed", func.__name__)
 
+    # pylint: disable=inconsistent-return-statements
+    def __retry(self, func: Callable[FuncParam, FuncRetVal],
+                *args: FuncParam.args,
+                **kwargs: FuncParam.kwargs) -> FuncRetVal:
+        for _ in self.__context:
+            try:
+                result = func(*args, **kwargs)
+                self.__success(func)
+                return result
+            # It does not matter if it's broad :p this is user
+            # configuration.
+            # pylint: disable=broad-except
+            except self.__exceptions as error:
+                self.__caught_error(func, error)
+                last_error = error
+                continue
+        self.__final_error(func, last_error)
+
     def retry(self, func: Callable[FuncParam, FuncRetVal]) \
         -> Callable[FuncParam, FuncRetVal]:
         """Decorate a regular function.
@@ -82,30 +101,30 @@ class Retry:
         raises an exception, until number of tries from the context
         are exhausted.
         """
-        # pylint: disable=inconsistent-return-statements
+        return decorator.decorate(func, self.__retry)
 
-        @functools.wraps(func)
-        def _decorated(*args: FuncParam.args,
-                       **kwargs: FuncParam.kwargs) -> FuncRetVal:
-            for _ in self.__context:
-                try:
-                    result = func(*args, **kwargs)
-                    self.__success(func)
-                    return result
-                # It does not matter if it's broad :p this is user
-                # configuration.
-                # pylint: disable=broad-except
-                except self.__exceptions as error:
-                    self.__caught_error(func, error)
-                    last_error = error
-                    continue
-            self.__final_error(func, last_error)
-
-        return _decorated
+    async def __aioretry(
+            self,
+            func: Callable[FuncParam, Awaitable[FuncRetVal]] | Callable[FuncParam, FuncRetVal],
+            *args: FuncParam.args,
+            **kwargs: FuncParam.kwargs) -> FuncRetVal:
+        async for _ in self.__context:
+            try:
+                result = func(*args, **kwargs)
+                if inspect.isawaitable(result):
+                    result = await result
+                self.__success(func)
+                return cast(FuncRetVal, result)
+            # pylint: disable=broad-except
+            except self.__exceptions as error:
+                self.__caught_error(func, error)
+                last_error = error
+                continue
+        self.__final_error(func, last_error)
 
     def aioretry(
             self,
-            func: Callable[FuncParam, Awaitable[FuncRetVal] | FuncRetVal]) \
+            func: Callable[FuncParam, Awaitable[FuncRetVal]] | Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, Awaitable[FuncRetVal]]:
         """Decorate a function with an async retry decoration.
 
@@ -120,32 +139,16 @@ class Retry:
             as the original function's
 
         """
+        return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
+                    decorator.decorate(func, self.__aioretry))
 
-        @functools.wraps(func)
-        async def _decorated(
-                *args: FuncParam.args, **kwargs: FuncParam.kwargs) \
-                -> FuncRetVal:
-            async for _ in self.__context:
-                try:
-                    result = func(*args, **kwargs)
-                    if inspect.isawaitable(result):
-                        result = await result
-                    self.__success(func)
-                    return cast(FuncRetVal, result)
-                # pylint: disable=broad-except
-                except self.__exceptions as error:
-                    self.__caught_error(func, error)
-                    last_error = error
-                    continue
-            self.__final_error(func, last_error)
-
-        return _decorated
-
-    def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
-        -> Callable[FuncParam, FuncRetVal]:
+    def __call__(
+            self, func: Callable[FuncParam, FuncRetVal] |
+            Callable[FuncParam, Awaitable[FuncRetVal]]) \
+        -> Callable[FuncParam, FuncRetVal] | Callable[FuncParam, Awaitable[FuncRetVal]]:
         if asyncio.iscoroutinefunction(func):
-            return cast(Callable[FuncParam, FuncRetVal], self.aioretry(func))
-        return self.retry(func)
+            return cast(Callable[FuncParam, Awaitable[FuncRetVal]], self.aioretry(func))
+        return cast(Callable[FuncParam, FuncRetVal], self.retry(func))
 
     def __str__(self) -> str:
         return self.__str
