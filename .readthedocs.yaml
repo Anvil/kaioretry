@@ -10,3 +10,10 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
+  jobs:
+    pre_build:
+      # We should actually do that, but, for time-saving purpose,
+      # let's just install decorator.
+      # - pip install poetry
+      # - poetry update
+      - pip install decorator
