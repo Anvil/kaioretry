@@ -9,6 +9,8 @@
   decorator.
 - Expose logger parameter in kaioretry.retry and kaioretry.aioretry
   signatures.
+- Fix return description in kaioretry.retry and kaioretry.aioretry
+  docstrings.
 
 ## [0.3.0] - 2023-01-29
 

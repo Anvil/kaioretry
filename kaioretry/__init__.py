@@ -13,7 +13,6 @@ __version__ = "0.3.0"
 
 
 RETRY_PARAMS_DOCSTRING = """
-
     :param exceptions: exceptions classes that will trigger another
         try. Other exceptions raised by the decorated function will
         not trigger a retry. The value of the exceptions parameters
@@ -45,8 +44,6 @@ RETRY_PARAMS_DOCSTRING = """
 
     :param logger: the :py:class:`logging.Logger` object to which the
         log messages will be sent to.
-
-    :returns: a retry decorator for regular (non-coroutine) functions.
 
     :raises ValueError: if tries, min_delay or max_delay have incorrect values.
     :raises TypeError: if jitter is neither a Number or a tuple.
@@ -87,14 +84,21 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
         return func(retry_obj)
 
     if func.__doc__ is not None:
-        decoration.__doc__ = func.__doc__ + RETRY_PARAMS_DOCSTRING
+        decoration.__doc__ = func.__doc__.replace(
+            "%PARAMS%", RETRY_PARAMS_DOCSTRING)
     return decoration
 
 
 @_make_decorator
 def retry(retry_obj: Retry) -> Callable[[Callable[FuncParam, FuncRetVal]],
                                         Callable[FuncParam, FuncRetVal]]:
-    """Returns a retry decorator, suitable for regular functions."""
+    """Returns a retry decorator, suitable for regular functions.
+
+    %PARAMS%
+
+    :returns: a retry decorator for regular (non-coroutine) functions.
+
+    """
     return retry_obj.retry
 
 
@@ -103,7 +107,15 @@ def aioretry(retry_obj: Retry) -> Callable[
         [Callable[FuncParam, FuncRetVal] |
          Callable[FuncParam, Awaitable[FuncRetVal]]],
         Callable[FuncParam, Awaitable[FuncRetVal]]]:
-    """Returns a retry decorator, suitable for coroutine functions."""
+    """Returns a retry decorator, suitable for both regular functions
+    and coroutine functions. The decoration will turn the original
+    function to a coroutine function.
+
+    %PARAMS%
+
+    :returns: a retry decorator that generates coroutines functions.
+
+    """
     return retry_obj.aioretry
 
 
