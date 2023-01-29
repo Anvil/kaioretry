@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+- Refactor kaioretry.retry and kaioretry.aioretry through another
+  decorator.
+- Expose logger parameter in kaioretry.retry and kaioretry.aioretry
+  signatures.
+
 ## [0.3.0] - 2023-01-29
 
 ### Fixed
