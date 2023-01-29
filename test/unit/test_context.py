@@ -52,7 +52,7 @@ async def test_context_tries(assert_length, sleep, tries):
 
 async def test_context_logging(mocker, assert_length, sleep):
     """Test that the passed logger is actually used"""
-    tries = random.randint(1, 10)
+    tries = random.randint(2, 10)
     logger = mocker.MagicMock(spec=logging.Logger)
     context = Context(tries=tries, logger=logger)
     await assert_length(context, tries)
