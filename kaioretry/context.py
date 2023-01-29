@@ -19,9 +19,10 @@ class Context:
     """The Retry Context will maintain the number of tries and the
     delay between those tries.
 
-    It can act as both a :py:class:`Generator` and an
-    :py:class:`AsyncGenerator`, and can be reused, multiple times,
-    even with multiple :py:class:`~kaioretry.retry.Retry` instances.
+    It can act as both a :py:class:`~collections.abc.Generator` and an
+    :py:class:`~collections.abc.AsyncGenerator`, and can be reused,
+    multiple times, even with multiple
+    :py:class:`~kaioretry.retry.Retry` instances.
 
     The :py:class:`~kaioretry.retry.Retry` objects will iterate over
     :py:class:`~kaioretry.context.Context`, synchronously, or
