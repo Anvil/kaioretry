@@ -60,8 +60,8 @@ class Retry:
     """
 
     def __init__(
-            self, /, exceptions: Exceptions = Exception, *,
-            context: Context = DEFAULT_CONTEXT,
+            self, /, exceptions: Exceptions = Exception,
+            context: Context = DEFAULT_CONTEXT, *,
             logger: logging.Logger = DEFAULT_LOGGER) -> None:
         self.__exceptions = exceptions
         self.__context = context
