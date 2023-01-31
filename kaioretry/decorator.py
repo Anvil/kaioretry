@@ -109,7 +109,7 @@ class Retry:
         self.__final_error(func, last_error)
 
     def retry(self, func: Callable[FuncParam, FuncRetVal]) \
-        -> Callable[FuncParam, FuncRetVal]:
+            -> Callable[FuncParam, FuncRetVal]:
         """Decorate a regular function.
 
         The decoration will retry the original function every time it
@@ -120,7 +120,8 @@ class Retry:
 
     async def __aioretry(
             self,
-            func: Callable[FuncParam, Awaitable[FuncRetVal]] | Callable[FuncParam, FuncRetVal],
+            func: Callable[FuncParam, Awaitable[FuncRetVal]] |
+            Callable[FuncParam, FuncRetVal],
             *args: FuncParam.args,
             **kwargs: FuncParam.kwargs) -> FuncRetVal:
         async for _ in self.__context:
@@ -139,7 +140,8 @@ class Retry:
 
     def aioretry(
             self,
-            func: Callable[FuncParam, Awaitable[FuncRetVal]] | Callable[FuncParam, FuncRetVal]) \
+            func: Callable[FuncParam, Awaitable[FuncRetVal]] |
+            Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, Awaitable[FuncRetVal]]:
         """Decorate a function with an async retry decoration.
 
@@ -160,9 +162,11 @@ class Retry:
     def __call__(
             self, func: Callable[FuncParam, FuncRetVal] |
             Callable[FuncParam, Awaitable[FuncRetVal]]) \
-        -> Callable[FuncParam, FuncRetVal] | Callable[FuncParam, Awaitable[FuncRetVal]]:
+            -> Callable[FuncParam, FuncRetVal] | \
+            Callable[FuncParam, Awaitable[FuncRetVal]]:
         if asyncio.iscoroutinefunction(func):
-            return cast(Callable[FuncParam, Awaitable[FuncRetVal]], self.aioretry(func))
+            return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
+                        self.aioretry(func))
         return cast(Callable[FuncParam, FuncRetVal], self.retry(func))
 
     def __str__(self) -> str:

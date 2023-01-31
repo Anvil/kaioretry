@@ -4,7 +4,8 @@ import logging
 from typing import Awaitable
 from collections.abc import Callable
 
-from .types import Exceptions, NonNegative, Number, Jitter, FuncParam, FuncRetVal
+from .types import Exceptions, NonNegative, Number, Jitter, \
+    FuncParam, FuncRetVal
 from .context import Context
 from .decorator import Retry
 
@@ -83,7 +84,7 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
             exceptions=exceptions, context=context, logger=logger)
         return func(retry_obj)
 
-    if func.__doc__ is not None:
+    if func.__doc__ is not None:  # pragma: nocover
         decoration.__doc__ = func.__doc__.replace(
             "%PARAMS%", RETRY_PARAMS_DOCSTRING)
     return decoration

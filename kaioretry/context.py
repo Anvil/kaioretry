@@ -153,7 +153,8 @@ class Context:
         delay = max(delay, self.__min_delay)
         return delay
 
-    def __make_iterator(self, sleep: SleepF[Any]) -> Generator[SleepRetVal, None, None]:
+    def __make_iterator(
+            self, sleep: SleepF[Any]) -> Generator[SleepRetVal, None, None]:
         return iter(_ContextIterator(
             uuid.uuid4(), sleep, self.__tries, self.__delay,
             self.__update_delay, self.__logger))

@@ -62,7 +62,8 @@ async def test_context_logging(mocker, assert_length, sleep):
 
 @pytest.mark.parametrize("jitter", (0, random.randint(2, 10)))
 @pytest.mark.parametrize("backoff", (1, random.randint(3, 10)))
-async def test_context_delay_first_unaltered(assert_length, sleep, jitter, backoff):
+async def test_context_delay_first_unaltered(
+        assert_length, sleep, jitter, backoff):
     """Test that jitter and backoff do not alter the first value of delay"""
     tries = 2
     delay = random.randint(1, 100)
