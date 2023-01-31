@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2023-01-31
+
 ### Changed
 - Refactored sync/async Context loops implementations.
 
