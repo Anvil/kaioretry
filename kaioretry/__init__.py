@@ -22,7 +22,7 @@ RETRY_PARAMS_DOCSTRING = """
         :py:class:`Exception` class, which means any error will
         trigger a new try.
 
-    :param tries: the maxi number of iterations (a.k.a.: tries,
+    :param tries: the maximum number of iterations (a.k.a.: tries,
         function calls) to perform before exhaustion. A negative value
         means infinite. 0 is forbidden, since it would mean "don't
         run" at all.
