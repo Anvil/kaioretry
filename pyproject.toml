@@ -15,11 +15,12 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.10",
     "Topic :: Software Development"
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 decorator = ">=5.1.1"
 
 [tool.poetry.dev-dependencies]
