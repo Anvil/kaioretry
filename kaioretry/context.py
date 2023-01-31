@@ -4,14 +4,54 @@ import time
 import random
 import asyncio
 import logging
+import uuid
 
-from typing import cast
+from typing import cast, Awaitable, Any, TypeVar
 from collections.abc import Callable, Generator, AsyncGenerator
 
 from .types import NonNegative, Number, Jitter
 
 
-JitterFunc = Callable[[Number], Number]
+UpdateDelayF = Callable[[Number], Number]
+SleepRetVal = TypeVar('SleepRetVal', None, Awaitable[None])
+SleepF = Callable[[Number], SleepRetVal]
+
+
+class _ContextIterator:
+    """Single-usage helper class for Context objects."""
+
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, identifier: uuid.UUID, sleep: SleepF[Any], tries: int,
+                 delay: NonNegative, update_delay: UpdateDelayF,
+                 logger: logging.Logger, /) -> None:
+        self.__identifier = identifier
+        self.__sleep = sleep
+        self.__delay = delay
+        self.__update_delay = update_delay
+        self.__logger = logger
+        if tries > 0:
+            self.__tries = tries
+            self.__log_try = "%d tries remaining"
+        else:
+            self.__tries = -1
+            self.__log_try = "try #%d"
+
+    def __log(self, level: int, fmt: str, *args: Any) -> None:
+        """Log a message with some more context"""
+        self.__logger.log(level, f"{self.__identifier}: {fmt}", *args)
+
+    def _sleep(self) -> SleepRetVal:
+        self.__log(logging.INFO, "sleeping %s seconds", self.__delay)
+        return cast(SleepRetVal, self.__sleep(self.__delay))
+
+    def __iter__(self) -> Generator[SleepRetVal, None, None]:
+        self.__tries -= 1
+        while self.__tries:
+            self.__log(logging.INFO, self.__log_try, abs(self.__tries))
+            yield self._sleep()
+            self.__delay = self.__update_delay(self.__delay)
+            self.__tries -= 1
 
 
 class Context:
@@ -28,7 +68,7 @@ class Context:
     :py:class:`~kaioretry.context.Context`, synchronously, or
     asynchronously, depending of the nature of the decorated function.
 
-    :param tries: the maxi number of iterations (a.k.a.: tries,
+    :param tries: the maximum number of iterations (a.k.a.: tries,
         function calls) to perform before exhaustion. A negative value
         means infinite. 0 is forbidden, since it would mean "don't
         run" at all.
@@ -65,11 +105,11 @@ class Context:
     """
 
     @classmethod
-    def __make_jitter(cls, jitter: Jitter) -> JitterFunc:
+    def __make_jitter(cls, jitter: Jitter) -> UpdateDelayF:
         if isinstance(jitter, (int, float)):
-            return cast(JitterFunc, jitter.__add__)
+            return cast(UpdateDelayF, jitter.__add__)
         if isinstance(jitter, (tuple, list)):
-            return cast(JitterFunc,
+            return cast(UpdateDelayF,
                         lambda x: x + random.uniform(*jitter))
         raise TypeError("jitter parameter is neither a number "
                         f"nor a 2 length tuple: {jitter}")
@@ -100,14 +140,12 @@ class Context:
             f"delay=({min_delay}<=({delay}+{jitter})*{backoff}<={max_delay}))")
         self.__logger = logger
 
-    def update(self, delay: NonNegative) -> NonNegative:
-        """Return the updated values for tries and delay.
+    def __update_delay(self, delay: NonNegative) -> NonNegative:
+        """Compute the updated values for given delay.
 
         :param delay: the current value of delay between iterations.
 
-        :returns: the number of tries left _and_ the duration to wait
-            for before the next iteration.
-
+        :returns: the new duration to wait for before the next iteration.
         """
         delay = self.__jitter(delay * self.__backoff)
         if self.__max_delay is not None:
@@ -115,23 +153,21 @@ class Context:
         delay = max(delay, self.__min_delay)
         return delay
 
+    def __make_iterator(self, sleep: SleepF[Any]) -> Generator[SleepRetVal, None, None]:
+        return iter(_ContextIterator(
+            uuid.uuid4(), sleep, self.__tries, self.__delay,
+            self.__update_delay, self.__logger))
+
     def __iter__(self) -> Generator[None, None, None]:
         yield
-        tries, delay = self.__tries, self.__delay
-        while tries := tries - 1:
-            self.__logger.info("sleeping %s seconds", delay)
-            time.sleep(delay)
-            yield
-            delay = self.update(delay)
+        yield from self.__make_iterator(time.sleep)
 
     async def __aiter__(self) -> AsyncGenerator[None, None]:
         yield
-        tries, delay = self.__tries, self.__delay
-        while tries := tries - 1:
-            self.__logger.info("sleeping %s seconds", delay)
-            await asyncio.sleep(delay)
+        for sleep in cast(Generator[Awaitable[None], None, None],
+                          self.__make_iterator(asyncio.sleep)):
+            await sleep
             yield
-            delay = self.update(delay)
 
     def __str__(self) -> str:
         return self.__str
