@@ -4,6 +4,8 @@
 [![Supported Python Version](https://img.shields.io/pypi/pyversions/kaioretry?logo=python&style=plastic)](https://pypi.python.org/pypi/kaioretry/)
 [![License](https://img.shields.io/pypi/l/kaioretry?color=green&logo=GNU&style=plastic)](https://github.com/Anvil/kaioretry/blob/main/LICENSE)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/kaioretry?color=magenta&style=plastic)](https://pypistats.org/packages/kaioretry)
+[![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml)
+[![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml)
 
 
 KaioRetry is (yet another) retry decorator implementation, which is
@@ -32,8 +34,5 @@ API Documentation is available on readthedocs:
 
 ## TODO List
 
-* Add unit tests pipelines
 * Write a decent README
 * Improve documentation display on the RTD
-* Lower requirements to python 3.10 if possible (and if i feel like it)
-* Lower requirements to python 3.9 if possible (and if i feel like it)
