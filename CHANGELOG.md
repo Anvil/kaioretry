@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2023-02-01
+
 ### Changed
 - Lower python requirement to 3.10
 
