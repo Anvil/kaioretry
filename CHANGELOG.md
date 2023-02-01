@@ -5,6 +5,9 @@
 ### Changed
 - Lower python requirement to 3.10
 
+### Added
+- flake8, pylint and unit tests python 3.10 and 3.11
+
 ## [0.5.0] - 2023-01-31
 
 ### Changed
