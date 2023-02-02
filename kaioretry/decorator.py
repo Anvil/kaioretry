@@ -1,11 +1,10 @@
 """The retry decorator implementation"""
 
-import asyncio
 import inspect
 import logging
 
-from typing import Awaitable, cast, Any, NoReturn
-from collections.abc import Callable
+from collections.abc import Callable, Awaitable
+from typing import cast, Any, NoReturn, Awaitable as OldAwaitable
 
 import decorator
 
@@ -159,15 +158,51 @@ class Retry:
         return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
                     decorator.decorate(func, self.__aioretry))
 
+    __is_not_async_type = {Awaitable, OldAwaitable}.isdisjoint
+
+    @classmethod
+    def _has_async_return_annotation(cls, func: Function) -> bool:
+        """Tell if a function is annotated to return an
+        async-ish type.
+
+        :param func: any callable
+
+        :returns: True if return type annotation is either Awaitable,
+            AsyncGenerator, or their variant.
+
+        """
+        try:
+            rtype = func.__annotations__['return']
+        except (AttributeError, KeyError):
+            return False
+        try:
+            origin = rtype.__origin__
+        except AttributeError:
+            origin = rtype
+        return not cls.__is_not_async_type({rtype, origin})
+
+    @classmethod
+    def is_func_async(cls, func: Function) -> bool:
+        """Tell if a function can be considered async, either because
+        it's a coroutine, an asyncgenerator or because it's annotated
+        to return :py:class:`collections.abc.Awaitable` or
+        :py:class:`typing.Awaitable`.
+        """
+        return inspect.iscoroutinefunction(func) or \
+            cls._has_async_return_annotation(func)
+
     def __call__(
             self, func: Callable[FuncParam, FuncRetVal] |
             Callable[FuncParam, Awaitable[FuncRetVal]]) \
             -> Callable[FuncParam, FuncRetVal] | \
             Callable[FuncParam, Awaitable[FuncRetVal]]:
-        if asyncio.iscoroutinefunction(func):
+        if self.is_func_async(func):
             return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
                         self.aioretry(func))
         return cast(Callable[FuncParam, FuncRetVal], self.retry(func))
 
     def __str__(self) -> str:
         return self.__str
+
+
+__all__ = ['Retry']
