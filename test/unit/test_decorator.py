@@ -6,6 +6,7 @@ import pytest
 
 from kaioretry import Retry, Context
 from .mock import MagicMock
+from .conftest import for_each_is_func_async_case
 
 
 async def test_retry(exception, decorator, func, assert_result):
@@ -59,6 +60,7 @@ async def test_retry___call__(exception, mocker, is_async):
     assert retryable
 
 
+@for_each_is_func_async_case
 async def test_retry_is_func_async(function, is_async):
     """Test that Retry.is_func_async result matches expectations"""
     assert Retry.is_func_async(function) == is_async

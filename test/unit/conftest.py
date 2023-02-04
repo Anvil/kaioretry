@@ -102,13 +102,10 @@ _is_func_async_cases_ids = (
     "sync-abc.awaitable", "sync-abc.awaitable-typed")
 
 
-@pytest_cases.fixture(
-    unpack_into="function, is_async",
-    params=_is_func_async_cases_list, ids=_is_func_async_cases_ids)
-def is_func_async_cases(request):
-    """
-    """
-    return request.param
+for_each_is_func_async_case = \
+    pytest.mark.parametrize(
+        "function, is_async", _is_func_async_cases_list,
+        ids=_is_func_async_cases_ids)
 
 
 @pytest_cases.fixture(unpack_into="decorator, func, assert_result",
