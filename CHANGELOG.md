@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+- update the `Retry.__call__` heuristic to include regular functions returning
+  awaitable objects.
+
+
 ## [0.6.0] - 2023-02-01
 
 ### Changed
