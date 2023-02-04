@@ -12,3 +12,12 @@ sed -i "s/\(__version__ = \+\)\(.\).*/\1\2$version\2/" kaioretry/__init__.py
 date=$(date +%Y-%m-%d)
 
 sed -i "s/## \[Unreleased\]/&\n\n## [$version] - $date/" CHANGELOG.md
+
+git commit -m "bump version to $version" \
+    pyproject.toml CHANGELOG.md kaioretry/__init__.py
+
+git tag "$version"
+git push
+git push --tags
+poetry build
+poetry publish
