@@ -1,8 +1,12 @@
 """Common unit tests fixtures"""
 
+import asyncio
 import inspect
 import string
 from random import choice
+from typing import Awaitable
+import collections.abc
+
 
 import pytest
 import pytest_cases
@@ -17,16 +21,30 @@ from kaioretry import Retry
 from .mock import create_autospec
 
 
-def _sync(first=1, second=2, third=3):
+def _sync(first=1, second=2):
     """A stupid sync function"""
     # pylint: disable=unused-argument
     return 10
 
 
-async def _async(first=1, second=2, third=3):
+async def _async(first=1, second=2):
     """A stupid async function"""
     # pylint: disable=unused-argument
     return 10
+
+
+def async_disguises():
+    """Return the combinations of annotated functions that should be suitable
+    for an async decoration.
+    """
+    for awaitable in (Awaitable, collections.abc.Awaitable):
+        for rtype in (awaitable, awaitable[None]):
+            # This cell-var case is not true for annotations, it seems.
+            # pylint: disable=cell-var-from-loop
+            def _async_in_disguise(first=1, second=2) -> rtype:
+                # pylint: disable=unused-argument
+                return asyncio.sleep(0)
+            yield _async_in_disguise
 
 
 def random_string(length=10):
@@ -40,12 +58,6 @@ def auto_spec(func):
     mock.__qualname__ = mock.__name__ = random_string()
     mock.__doc__ = random_string()
     return mock
-
-
-@pytest.fixture(params=(_sync, _async))
-def any_func(request):
-    """Provide a mock impersonating a function or async function"""
-    return auto_spec(request.param)
 
 
 @pytest.fixture
@@ -79,15 +91,36 @@ async def assert_sync_result(result, expected):
     assert result == expected
 
 
+_is_func_async_cases_list = ((_sync, False),
+                             (_async, True),
+                             *[(async_in_disguise, True)
+                               for async_in_disguise in async_disguises()])
+
+
+_is_func_async_cases_ids = (
+    "sync", "async", "sync-typing.awaitable", "sync-awaitable-typed",
+    "sync-abc.awaitable", "sync-abc.awaitable-typed")
+
+
 @pytest_cases.fixture(
-    unpack_into="decorator, func, assert_result",
-    params=((Retry.retry, _sync, assert_sync_result),
-            (Retry.aioretry, _sync, assert_async_result),
-            (Retry.aioretry, _async, assert_async_result)),
-    ids=("sync-sync", "async-sync", "async-async"))
-def supported_cases(request):
+    unpack_into="function, is_async",
+    params=_is_func_async_cases_list, ids=_is_func_async_cases_ids)
+def is_func_async_cases(request):
+    """
+    """
+    return request.param
+
+
+@pytest_cases.fixture(unpack_into="decorator, func, assert_result",
+                      params=((_sync, True), *_is_func_async_cases_list),
+                      ids=("sync-as-async", *_is_func_async_cases_ids))
+def retry_supported_cases(request):
     """Provides the working combos decorator / func / validation of result"""
-    decorator, func, assert_result = request.param
+    func, is_async = request.param
+    if is_async:
+        decorator, assert_result = Retry.aioretry, assert_async_result
+    else:
+        decorator, assert_result = Retry.retry, assert_sync_result
     mock = create_autospec(func)
     yield decorator, mock, assert_result
     if inspect.iscoroutinefunction(func):

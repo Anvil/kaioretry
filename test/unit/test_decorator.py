@@ -1,7 +1,7 @@
 """Retry class unit tests"""
 
 from random import randint
-from inspect import iscoroutinefunction, getfullargspec
+from inspect import getfullargspec
 import pytest
 
 from kaioretry import Retry, Context
@@ -46,9 +46,19 @@ async def test_retry_final_failure(exception, decorator, func, assert_result):
     assert exc_info.value is side_effect[-1]
 
 
-async def test_retry___call__(exception, any_func):
+@pytest.mark.parametrize("is_async", (True, False))
+async def test_retry___call__(exception, mocker, is_async):
     """Test that __call__ return a same-nature decorated function"""
-    retry = Retry(exception)
-    retryable = retry(any_func)
+    mocker.patch("kaioretry.Retry.is_func_async", return_value=is_async)
+    mocker.patch("kaioretry.Retry.retry", return_value=not is_async)
+    mocker.patch("kaioretry.Retry.aioretry", return_value=is_async)
 
-    assert iscoroutinefunction(retryable) == iscoroutinefunction(any_func)
+    retry = Retry(exception)
+    retryable = retry(MagicMock())
+
+    assert retryable
+
+
+async def test_retry_is_func_async(function, is_async):
+    """Test that Retry.is_func_async result matches expectations"""
+    assert Retry.is_func_async(function) == is_async
