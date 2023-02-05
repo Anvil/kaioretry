@@ -6,6 +6,8 @@
 Welcome to kaioretry's documentation!
 =====================================
 
+KaioRetry current version is |release|
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
