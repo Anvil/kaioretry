@@ -12,13 +12,11 @@ KaioRetry current version is |release|
    :maxdepth: 2
    :caption: Contents:
 
+   kaioretry.rst
+
+
 .. autofunction:: kaioretry.retry
 .. autofunction:: kaioretry.aioretry
-
-.. automodule:: kaioretry.decorator
-   :members:
-.. automodule:: kaioretry.context
-   :members:
 
 
 Indices and tables
