@@ -12,6 +12,7 @@ KaioRetry current version is |release|
    :maxdepth: 2
    :caption: Contents:
 
+   getting-started.rst
    kaioretry.rst
 
 
