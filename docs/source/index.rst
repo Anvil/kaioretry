@@ -13,11 +13,8 @@ KaioRetry current version is |release|
    :caption: Contents:
 
    getting-started.rst
+   decorators.rst
    kaioretry.rst
-
-
-.. autofunction:: kaioretry.retry
-.. autofunction:: kaioretry.aioretry
 
 
 Indices and tables
