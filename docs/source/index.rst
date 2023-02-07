@@ -10,8 +10,9 @@ KaioRetry current version is |release|
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: KaioRetry:
 
+   introduction.rst
    getting-started.rst
    decorators.rst
    kaioretry.rst
