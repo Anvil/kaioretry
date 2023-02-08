@@ -14,26 +14,30 @@ clearly inspired by the original
 [retry](https://pypi.org/project/retry) module and is actually
 backward compatible with it.
 
-I say *backward* because, while `retry` clearly did the job for me for a
-time, at some point I've encountered a big limitation: it did not work
-with asyncio coroutines. And it's been unmaintained for 6 years.
+# Basic usage
 
-I found a few alternatives for that but none of them were both sync
-and async and since I did not wanted to use 2 differents modules for
-the same goal, I've decided to write this one, with the rule that the
-code duplication, between the sync and async versions, should be
-smartly kept to a very very strict minimum.
+Transparently perform retries on failures:
 
-And here we are then.
+```python
 
+from kaioretry import retry, aioretry
+
+
+@retry(exceptions=ValueError, tries=2)
+def some_func(...):
+    ...
+
+
+@aioretry(exceptions=(ValueError, SomeOtherError), tries=-1, delay=1)
+async def some_coroutine(...):
+    ...
+
+```
 
 # Documentation
 
-User documentation is available on
-[readthedocs](https://kaioretry.readthedocs.io/en/latest/)
+If you care to read more, a more lengthy documentation is available on
+[readthedocs](https://kaioretry.readthedocs.io/en/latest/).
 
 
-## TODO List
-
-* Write a decent README
-* Improve documentation display on the RTD
+### Feedback welcome.

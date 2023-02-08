@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- improve README.md a bit.
+
 ## [0.8.2] - 2023-02-08
 
 ### Fixed
