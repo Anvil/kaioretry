@@ -34,6 +34,7 @@ release = '0.8.3'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.autosectionlabel',
     'sphinx_autodoc_typehints'
 ]
 
