@@ -7,6 +7,10 @@ set -ex
 
 version=$1
 
+latest_tag=$(git describe --tags --abbrev=0)
+
+[[ -n $(git diff "$latest_tag" -- CHANGELOG.md) ]]
+
 poetry version "$version"
 
 sed -i "s/\(__version__ = \+\)\(.\).*/\1\2$version\2/" kaioretry/__init__.py

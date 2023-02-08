@@ -2,7 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+- make set-version abort if changelog has not been filled.
+
 ## [0.8.4] - 2023-02-09
+
+### Fixed
+- fix some typoes, spelling, grammar, etc in getting-started.rst.
 
 ## [0.8.3] - 2023-02-08
 
