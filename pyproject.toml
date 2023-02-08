@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kaioretry"
-version = "0.8.3"
+version = "0.8.4"
 description = "All in one retry and aioretry decorators"
 authors = ["Damien Nadé <anvil.github+kaioretry@livna.org>"]
 license = "LGPL-2.1-or-later"
