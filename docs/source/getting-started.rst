@@ -11,11 +11,11 @@ Getting Started
 1. Trying again
 ---------------
 
-Let's say we have a to query a buggy webserver, which, once in a while, resets
+Let's say we have to query a buggy webserver, which, once in a while, resets
 the client connection.
 
-Let's say, when that happens, we want immediately re-perform the same request
-to that server.
+Let's say, when that happens, we want to immediately re-perform the same
+request to that server.
 
 To do that easily, we would just have to use the :py:func:`~kaioretry.retry`
 decorator, when defining the function.
@@ -43,10 +43,10 @@ of failure. (It's `tries=2` does not mean `retries=2`)
 2. Trying until it works
 ------------------------
 
-Now, let's hypothesize that the server is really buggy, but you know it
+Now, let's hypothesize that the server is reeeeeaaally buggy, but you know it
 randomly works.
 
-Your solution here is to retry until it works, no matter how many try it
+Your solution here is to retry until it works, no matter how many attempts it
 takes.
 
 
@@ -65,8 +65,8 @@ takes.
 
 .. note::
 
-   `tries` default value is -1. It means by default `retry` will call the
-   function again and again, until it succeeds.
+   `tries` default value is -1. It means that by default `retry` will call the
+   function again and again..... and agaaaaaaain, until it succeeds.
 
 
 3. Catching specific exceptions
@@ -78,7 +78,7 @@ else.
 
 You would be, then, well advised not to retry, on, say, a
 :py:class:`KeyError`, which would likely represent a flaw in your own code,
-like typo, or a valid answer you did not expect.
+like typo, or a (in)valid answer you did not expect.
 
 To achieve this, you would have to specify the exception class that will
 trigger another try, by using the `exceptions` parameter.
@@ -103,7 +103,8 @@ trigger another try, by using the `exceptions` parameter.
 
 
 Now, if you discover that the buggy server also generates some time
-out... Then brace yourself, and just it to the `exceptions` parameter value.
+out... Then brace yourself, and just add it to the `exceptions` parameter
+value.
 
 
 .. code-block:: python
@@ -122,9 +123,9 @@ out... Then brace yourself, and just it to the `exceptions` parameter value.
 -------------------------------
 
 This being said, it is, I think, most of the time, advisable to wait a bit
-between attempting again, after a failure, instead of spamming a
-possibly-already-unwell server. We dont want to spam an already sick server,
-do we? This is made possible through the the ``delay`` parameter.
+between attempting again, after a failure. We dont want to spam to death an
+already sick server, do we? This is made possible through the the ``delay``
+parameter.
 
 Let's introduce a 2 seconds delay between each try, by using the `delay`
 parameter.
@@ -143,12 +144,13 @@ parameter.
 
 
 .. note:: ``delay`` value is expressed in seconds. Either whole seconds
-	  (:py:class:`int`) or whole seconds and then some
+	  (:py:class:`int`) or whole seconds-and-then-some
 	  (:py:class:`float`).
 
 .. note:: `delay` default value is 0, which means no wait between tries.
 
-.. warning:: `delay` cannot be negative, for obvious reasons.
+.. warning:: `delay` cannot be negative, for obvious reasons. (like breaking
+             the space-time continuum)
 
 
 5. Increasing logs to analyse the retry process
@@ -288,7 +290,9 @@ experienced it already (just like I have).
 So you want an asyncIO-friendly retry decorator, without changing too much of
 your code?
 
-Madame, Monsieur, Others, voila :py:func:`~kaioretry.aioretry`.
+Madame, Monsieur, Others, voila:
+
+.. centered:: The :py:func:`~kaioretry.aioretry` decorator!
 
 
 .. code-block:: python
@@ -353,7 +357,7 @@ That's why AsyncIO comes with its own sleep primitive,
 turn it into a coroutine function, and you will have to `await` it. In return
 it will not freeze your process.
 
-Sounds fair? Looked fair enough to me when I wrote that.
+Sounds fair? Sounded fair enough to me when I wrote that.
 
 
 .. code-block:: python
@@ -388,8 +392,9 @@ Sounds fair? Looked fair enough to me when I wrote that.
    1
 
 
-I hope this is not too confusing for you. Good luck. :] Let me know if you can
-explain this better. Pull requests are always welcome.
+I hope this is not too confusing for you. Good luck. :]
+
+Let me know if you can explain this better. Pull requests are always welcome.
 
 
 .. warning:: if you came here from the very top of the page and dont know where
