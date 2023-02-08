@@ -1,12 +1,33 @@
 .. kaioretry documentation master file, created by
    sphinx-quickstart on Tue Jan 24 22:40:02 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 
-Welcome to kaioretry's documentation!
+Welcome to KaioRetry's documentation!
 =====================================
 
 KaioRetry current version is |release|
+
+KaioRetry allows you to easily retry a function call.
+
+
+Installation
+------------
+
+KaioRetry is published on pypi. You know the drill, right?
+
+
+.. code:: bash
+
+   $ pip install kaioretry
+
+
+Depdendencies
+-------------
+
+At runtime, KaioRetry relies on `decorator
+<https://github.com/micheles/decorator>`_ to efficiently propagate type
+annotations and other metadata of the decorated function, to the function
+produced by the decorator.
+
 
 .. toctree::
    :maxdepth: 2
@@ -16,11 +37,3 @@ KaioRetry current version is |release|
    getting-started.rst
    decorators.rst
    kaioretry.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
