@@ -4,6 +4,7 @@
 [![Supported Python Version](https://img.shields.io/pypi/pyversions/kaioretry?logo=python&style=plastic)](https://pypi.python.org/pypi/kaioretry/)
 [![License](https://img.shields.io/pypi/l/kaioretry?color=green&logo=GNU&style=plastic)](https://github.com/Anvil/kaioretry/blob/main/LICENSE)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/kaioretry?color=magenta&style=plastic)](https://pypistats.org/packages/kaioretry)
+
 [![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml)
 [![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml)
 
@@ -28,8 +29,8 @@ And here we are then.
 
 # Documentation
 
-API Documentation is available on readthedocs:
-[https://kaioretry.readthedocs.io/en/latest/]
+User documentation is available on
+[readthedocs](https://kaioretry.readthedocs.io/en/latest/)
 
 
 ## TODO List
