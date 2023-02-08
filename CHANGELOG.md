@@ -5,6 +5,9 @@
 ### Changed
 - make set-version exit on error
 
+### Fixed
+- poetry-core version in pyproject.toml
+
 ## [0.8.0] - 2023-02-08
 
 ### Added
