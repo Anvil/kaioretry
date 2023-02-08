@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.8.3] - 2023-02-08
+
 ### Changed
 - improve README.md a bit.
 
