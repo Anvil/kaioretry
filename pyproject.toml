@@ -30,6 +30,9 @@ pytest-mock = "^3.10"
 pytest-cases = "^3.6"
 pytest-cov = ">=4"
 
+[tool.poetry.group.sphinx]
+optional = true
+
 [tool.poetry.group.sphinx.dependencies]
 sphinx = ">=5"
 sphinx-autodoc-typehints = ">=1.17"
