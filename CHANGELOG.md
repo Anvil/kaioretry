@@ -2,14 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+- add plenty of sphinx documentation
+
 ## [0.7.1] - 2023-02-04
+
+### Fixed
+- fix a minor pylintness issue
 
 ## [0.7.0] - 2023-02-04
 
 ### Changed
 - update the `Retry.__call__` heuristic to include regular functions returning
   awaitable objects.
-
 
 ## [0.6.0] - 2023-02-01
 
