@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2023-02-08
+
 ### Added
 - add plenty of sphinx documentation
 
