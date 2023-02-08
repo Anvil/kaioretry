@@ -1,6 +1,8 @@
 #!/bin/bash
 # 
 
+set -ex
+
 [[ $# -eq 1 ]] || return
 
 version=$1
