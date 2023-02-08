@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- fix version in conf.py
+
 ## [0.8.1] - 2023-02-08
 
 ### Changed
