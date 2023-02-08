@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.8.1] - 2023-02-08
+
 ### Changed
 - make set-version exit on error
 
