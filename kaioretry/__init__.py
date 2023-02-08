@@ -71,7 +71,7 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
     """
     # pylint: disable=too-many-arguments
     def decoration(
-            exceptions: Exceptions = Exception, tries: int = -1,
+            exceptions: Exceptions = Exception, tries: int = -1, *,
             delay: NonNegative = 0, backoff: Number = 1,
             jitter: Jitter = 0,  max_delay: NonNegative | None = None,
             min_delay: NonNegative = 0,

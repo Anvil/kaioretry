@@ -30,6 +30,10 @@ pytest-mock = "^3.10"
 pytest-cases = "^3.6"
 pytest-cov = ">=4"
 
+[tool.poetry.group.sphinx.dependencies]
+sphinx = ">=5"
+sphinx-autodoc-typehints = ">=1.17"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
