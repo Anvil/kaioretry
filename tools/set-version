@@ -10,7 +10,7 @@ version=$1
 poetry version "$version"
 
 sed -i "s/\(__version__ = \+\)\(.\).*/\1\2$version\2/" kaioretry/__init__.py
-sed -i "s/\(release = \+\)\(.\).*/\1\2$version\2" docs/build/conf.py
+sed -i "s/\(release = \+\)\(.\).*/\1\2$version\2/" docs/source/conf.py
 
 date=$(date +%Y-%m-%d)
 
