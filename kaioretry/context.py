@@ -113,7 +113,7 @@ class Context:
         raise TypeError("jitter parameter is neither a number "
                         f"nor a 2 length tuple: {jitter}")
 
-    def __init__(self, *, tries: int = -1, delay: NonNegative = 0,
+    def __init__(self, /, tries: int = -1, delay: NonNegative = 0, *,
                  backoff: Number = 1, jitter: Jitter = 0,
                  max_delay: NonNegative | None = None,
                  min_delay: NonNegative = 0,
