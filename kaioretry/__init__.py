@@ -1,11 +1,13 @@
 """Retry decorator to automatically call a function again on errors"""
 
 import logging
-from typing import Awaitable
+import random
+
+from typing import Awaitable, cast
 from collections.abc import Callable
 
 from .types import Exceptions, NonNegative, Number, Jitter, \
-    FuncParam, FuncRetVal
+    FuncParam, FuncRetVal, UpdateDelayF
 from .context import Context
 from .decorator import Retry
 
@@ -47,8 +49,18 @@ RETRY_PARAMS_DOCSTRING = """
         log messages will be sent to.
 
     :raises ValueError: if tries, min_delay or max_delay have incorrect values.
-    :raises TypeError: if jitter is neither a Number or a tuple.
+    :raises TypeError: if jitter is neither a Number nor a :py:class:`tuple`.
 """
+
+
+def __make_jitter(jitter: Jitter) -> UpdateDelayF:
+    if isinstance(jitter, (int, float)):
+        return cast(UpdateDelayF, jitter.__add__)
+    if isinstance(jitter, (tuple, list)):
+        return cast(UpdateDelayF,
+                    lambda x: x + random.uniform(*jitter))
+    raise TypeError("jitter parameter is neither a number "
+                    f"nor a 2 length tuple: {jitter}")
 
 
 def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
@@ -77,8 +89,14 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
             min_delay: NonNegative = 0,
             logger: logging.Logger = Retry.DEFAULT_LOGGER) \
             -> Callable[FuncParam, FuncRetVal]:
+
+        jitter_f = __make_jitter(jitter)
+
+        def update_delay(delay: NonNegative) -> NonNegative:
+            return jitter_f(delay * backoff)
+
         context = Context(
-            tries=tries, delay=delay, backoff=backoff, jitter=jitter,
+            tries=tries, delay=delay, update_delay=update_delay,
             max_delay=max_delay, min_delay=min_delay, logger=logger)
         retry_obj = Retry(
             exceptions=exceptions, context=context, logger=logger)
