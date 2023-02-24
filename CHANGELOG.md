@@ -4,6 +4,8 @@
 
 ### Changed
 - make set-version abort if changelog has not been filled.
+- use a function instead of jitter/backoff parameter in kaioretry.Context
+  constructor
 
 ## [0.8.4] - 2023-02-09
 
