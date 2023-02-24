@@ -26,3 +26,6 @@ FuncParam = ParamSpec('FuncParam')
 FuncRetVal = TypeVar('FuncRetVal')
 
 Function: TypeAlias = Callable[..., Any]
+
+
+UpdateDelayF: TypeAlias = Callable[[NonNegative], NonNegative]
