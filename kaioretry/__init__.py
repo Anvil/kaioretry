@@ -7,7 +7,7 @@ from typing import Awaitable, cast
 from collections.abc import Callable
 
 from .types import Exceptions, NonNegative, Number, Jitter, \
-    FuncParam, FuncRetVal, UpdateDelayF, RetryDecorator
+    FuncParam, FuncRetVal, UpdateDelayF, RetryDecorator, JitterTuple
 from .context import Context
 from .decorator import Retry
 
@@ -53,16 +53,6 @@ RETRY_PARAMS_DOCSTRING = """
 """
 
 
-def __make_jitter(jitter: Jitter) -> UpdateDelayF:
-    if isinstance(jitter, (int, float)):
-        return cast(UpdateDelayF, jitter.__add__)
-    if isinstance(jitter, (tuple, list)):
-        return cast(UpdateDelayF,
-                    lambda x: x + random.uniform(*jitter))
-    raise TypeError("jitter parameter is neither a number "
-                    f"nor a 2 length tuple: {jitter}")
-
-
 def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
     -> RetryDecorator:
     """Create a function that will accept a bunch of parameters and
@@ -88,7 +78,14 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
             logger: logging.Logger = Retry.DEFAULT_LOGGER) \
             -> Callable[FuncParam, FuncRetVal]:
 
-        jitter_f = __make_jitter(jitter)
+        if isinstance(jitter, (int, float)):
+            jitter_f = cast(UpdateDelayF, jitter.__add__)
+        elif isinstance(jitter, (tuple, list)):
+            def jitter_f(delay: Number) -> Number:
+                return random.uniform(*cast(JitterTuple, jitter)) + delay
+        else:
+            raise TypeError("jitter parameter is neither a number "
+                            f"nor a 2 length tuple: {jitter}")
 
         def update_delay(delay: NonNegative) -> NonNegative:
             return jitter_f(delay * backoff)
