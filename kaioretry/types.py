@@ -19,7 +19,8 @@ Positive: TypeAlias = Number      # >  0
 
 
 # jitter parameter type is a bit specific
-Jitter: TypeAlias = Number | tuple[Number, Number]
+JitterTuple: TypeAlias = tuple[Number, Number]
+Jitter: TypeAlias = Number | JitterTuple
 
 
 FuncParam = ParamSpec('FuncParam')
