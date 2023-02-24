@@ -7,7 +7,7 @@ from typing import Awaitable, cast
 from collections.abc import Callable
 
 from .types import Exceptions, NonNegative, Number, Jitter, \
-    FuncParam, FuncRetVal, UpdateDelayF
+    FuncParam, FuncRetVal, UpdateDelayF, RetryDecorator
 from .context import Context
 from .decorator import Retry
 
@@ -64,9 +64,7 @@ def __make_jitter(jitter: Jitter) -> UpdateDelayF:
 
 
 def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
-    -> Callable[[Exceptions, int, NonNegative, Number, Jitter,
-                 NonNegative | None, NonNegative, logging.Logger],
-                Callable[FuncParam, FuncRetVal]]:
+    -> RetryDecorator:
     """Create a function that will accept a bunch of parameters and
     create the matching :py:class:`Retry` and :py:class:`Context`
     objects, in order to be compatible with the origin retry module.

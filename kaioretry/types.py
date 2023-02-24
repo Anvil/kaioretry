@@ -1,8 +1,15 @@
 """Custom types used by kaioretry"""
 
 
+from logging import Logger, getLogger
 from typing import TypeAlias, TypeVar, ParamSpec, Any
 from collections.abc import Callable
+
+from typing_extensions import Protocol
+
+# Protocols do not have public methods. This module will not define any
+# otherwise valid class.
+# pylint: disable=too-few-public-methods
 
 
 ExceptionT: TypeAlias = type[BaseException]
@@ -30,3 +37,15 @@ Function: TypeAlias = Callable[..., Any]
 
 
 UpdateDelayF: TypeAlias = Callable[[NonNegative], NonNegative]
+
+
+class RetryDecorator(Protocol):
+    """Retry Decorator Type"""
+    def __call__(self,
+                 exceptions: Exceptions = Exception, tries: int = -1, *,
+                 delay: NonNegative = 0, backoff: Number = 1,
+                 jitter: Jitter = 0,  max_delay: NonNegative | None = None,
+                 min_delay: NonNegative = 0,
+                 logger: Logger = getLogger(__name__)) \
+            -> Callable[FuncParam, FuncRetVal]:
+        ...                     # pragma: nocover
