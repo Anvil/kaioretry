@@ -2,6 +2,7 @@
 
 import random
 import logging
+from contextlib import nullcontext as does_not_raise
 
 import pytest
 
@@ -25,15 +26,36 @@ def test_retry(exception, mocker, attribute):
     retry_cls = mocker.patch("kaioretry.Retry", spec=kaioretry.Retry)
     context_cls = mocker.patch("kaioretry.Context")
     logger = mocker.MagicMock(spec=logging.Logger)
+
+    context_params = ("tries", "delay", "max_delay", "min_delay", "logger")
+    non_context_params = ("backoff", "jitter")
     params = {param: randint()
-              for param in ("tries", "delay", "backoff", "jitter",
-                            "max_delay", "min_delay")}
+              for param in context_params + non_context_params}
     params["logger"] = logger
 
     func = getattr(kaioretry, attribute)
     result = func(exception, **params)
 
-    context_cls.assert_called_once_with(**params)
+    context_cls.assert_called_once()
+    for param in context_params:
+        assert param in context_cls.call_args[1]
+        assert params[param] == context_cls.call_args[1][param]
+    assert "update_delay" in context_cls.call_args[1]
+    assert callable(context_cls.call_args[1]["update_delay"])
+
     retry_cls.assert_called_once_with(
         exceptions=exception, context=context_cls.return_value, logger=logger)
     assert result == getattr(retry_cls.return_value, attribute)
+
+
+@pytest.mark.parametrize("attribute", ("retry", "aioretry"))
+@pytest.mark.parametrize(
+    "jitter, expectation",
+    ((1, does_not_raise()),
+     ((1, 2), does_not_raise()),
+     ("abc", pytest.raises(TypeError))))
+def test_retry_jitter_values(exception, attribute, jitter, expectation):
+    """Test validation of jitter values"""
+    func = getattr(kaioretry, attribute)
+    with expectation:
+        func(exception, jitter=jitter)

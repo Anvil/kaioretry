@@ -60,46 +60,32 @@ async def test_context_logging(mocker, assert_length, sleep):
     assert logger.method_calls
 
 
-@pytest.mark.parametrize("jitter", (0, random.randint(2, 10)))
-@pytest.mark.parametrize("backoff", (1, random.randint(3, 10)))
+@pytest.mark.parametrize(
+    "update_delay", (lambda x: x, lambda _: random.randint(3, 10)))
 async def test_context_delay_first_unaltered(
-        assert_length, sleep, jitter, backoff):
+        assert_length, sleep, update_delay):
     """Test that jitter and backoff do not alter the first value of delay"""
     tries = 2
     delay = random.randint(1, 100)
-    context = Context(tries=tries, delay=delay, jitter=jitter, backoff=backoff)
+    context = Context(tries=tries, delay=delay, update_delay=update_delay)
     await assert_length(context, tries)
     sleep.assert_called_once_with(delay)
 
 
-@pytest.mark.parametrize("jitter", (0, random.randint(2, 10)))
-@pytest.mark.parametrize("backoff", (1, random.randint(3, 10)))
-async def test_context_max_delay(assert_length, sleep, jitter, backoff):
+@pytest.mark.parametrize(
+    "delay, max_delay, expected, update_delay",
+    ((5, 6, 5, lambda x: x),
+     (5, 6, 6, lambda x: x + random.randint(3, 10))))
+async def test_context_max_delay(
+        mocker, assert_length, sleep, delay, max_delay, expected, update_delay):
+    # pylint: disable=too-many-arguments
     """context delay should not grow bigger than max_delay"""
     tries = 3
-    delay = 5
-    max_delay = delay + 1
-    if jitter == 0 and backoff == 1:
-        second_call = delay
-    else:
-        second_call = max_delay
+    update_delay_mock = mocker.MagicMock(side_effect=update_delay)
     context = Context(tries=tries, delay=delay, max_delay=max_delay,
-                      jitter=jitter, backoff=backoff)
+                      update_delay=update_delay_mock)
     await assert_length(context, tries)
+
     sleep.assert_any_call(delay)
-    sleep.assert_any_call(second_call)
-
-
-async def test_context_random_jitter(assert_length, sleep):
-    """Test random interval for jitter as Context parameter"""
-    min_jitter = random.randint(1, 10)
-    max_jitter = min_jitter + random.randint(1, 10)
-    delay = 1
-    tries = 3
-
-    context = Context(
-        tries=tries, delay=delay, jitter=(min_jitter, max_jitter))
-    await assert_length(context, tries)
-
-    # Second and last call should have been made with delay + jitter.
-    assert delay + min_jitter < sleep.call_args[0][0] < delay + max_jitter
+    sleep.assert_any_call(expected)
+    update_delay_mock.assert_any_call(delay)

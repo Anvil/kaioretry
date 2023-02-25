@@ -124,9 +124,18 @@ def retry_supported_cases(request):
         assert mock.await_count == mock.call_count
 
 
-@pytest.fixture
-def exception():
-    """Generate a new uniq exception class"""
+def _exception():
     class _AnotherError(Exception):
         pass
     return _AnotherError
+
+
+@pytest.fixture
+def exception():
+    """Generate a new uniq exception class"""
+    return _exception()
+
+
+@pytest.fixture(params=(1, 2))
+def exceptions(request):
+    return tuple(_exception() for _ in range(request.param))

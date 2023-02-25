@@ -1,7 +1,6 @@
 """Retry Context Implementation"""
 
 import time
-import random
 import asyncio
 import logging
 import uuid
@@ -9,10 +8,9 @@ import uuid
 from typing import cast, Awaitable, Any, TypeVar
 from collections.abc import Callable, Generator, AsyncGenerator
 
-from .types import NonNegative, Number, Jitter
+from .types import NonNegative, Number, UpdateDelayF
 
 
-UpdateDelayF = Callable[[Number], Number]
 SleepRetVal = TypeVar('SleepRetVal', None, Awaitable[None])
 SleepF = Callable[[Number], SleepRetVal]
 
@@ -76,12 +74,9 @@ class Context:
     :param delay: the initial number of seconds to wait between two
         iterations. It must be non-negative. Default is 0 (no delay).
 
-    :param backoff: a multiplier applied to the delay after each
-        iteration. It can be a float, and it can actually be less than
-        one. Default: 1 (no backoff).
-
-    :param jitter: extra seconds added to delay between
-        iterations. Default: 0.
+    :param update_delay: a function that will produce the next value of delay
+        value. Can be anything as long as it produces a positive number when
+        called.
 
     :param max_delay: the maximum value allowed for delay. If None
         (the default), then delay is unlimited. Cannot be negative.
@@ -93,29 +88,16 @@ class Context:
         log messages will be sent to.
 
     :raises ValueError: if tries, min_delay or max_delay have incorrect values.
-    :raises TypeError: if jitter is neither a Number or a tuple.
 
     """
-
-    # pylint: disable=too-many-instance-attributes
 
     DEFAULT_LOGGER: logging.Logger = logging.getLogger(__name__)
     """The :py:class:`logging.Logger` object that will be used if none
     are provided to the constructor.
     """
 
-    @classmethod
-    def __make_jitter(cls, jitter: Jitter) -> UpdateDelayF:
-        if isinstance(jitter, (int, float)):
-            return cast(UpdateDelayF, jitter.__add__)
-        if isinstance(jitter, (tuple, list)):
-            return cast(UpdateDelayF,
-                        lambda x: x + random.uniform(*jitter))
-        raise TypeError("jitter parameter is neither a number "
-                        f"nor a 2 length tuple: {jitter}")
-
-    def __init__(self, *, tries: int = -1, delay: NonNegative = 0,
-                 backoff: Number = 1, jitter: Jitter = 0,
+    def __init__(self, /, tries: int = -1, delay: NonNegative = 0, *,
+                 update_delay: UpdateDelayF = lambda value: value,
                  max_delay: NonNegative | None = None,
                  min_delay: NonNegative = 0,
                  logger: logging.Logger = DEFAULT_LOGGER) -> None:
@@ -123,8 +105,7 @@ class Context:
             raise ValueError("tries value cannot be 0")
         self.__tries = tries
         self.__delay = delay
-        self.__jitter = self.__make_jitter(jitter)
-        self.__backoff = backoff
+        self.__update_delay_value = update_delay
         if min_delay < 0:
             raise ValueError(
                 f"min_delay cannot be less than 0. ({min_delay} given)")
@@ -137,7 +118,7 @@ class Context:
         self.__str = (
             f"{self.__class__.__name__}("
             f"tries={tries}, "
-            f"delay=({min_delay}<=({delay}+{jitter})*{backoff}<={max_delay}))")
+            f"delay=({min_delay}<={delay}<={max_delay}))")
         self.__logger = logger
 
     def __update_delay(self, delay: NonNegative) -> NonNegative:
@@ -147,7 +128,7 @@ class Context:
 
         :returns: the new duration to wait for before the next iteration.
         """
-        delay = self.__jitter(delay * self.__backoff)
+        delay = self.__update_delay_value(delay)
         if self.__max_delay is not None:
             delay = min(delay, self.__max_delay)
         delay = max(delay, self.__min_delay)
