@@ -2,6 +2,7 @@
 
 import random
 import logging
+from contextlib import nullcontext as does_not_raise
 
 import pytest
 
@@ -45,3 +46,16 @@ def test_retry(exception, mocker, attribute):
     retry_cls.assert_called_once_with(
         exceptions=exception, context=context_cls.return_value, logger=logger)
     assert result == getattr(retry_cls.return_value, attribute)
+
+
+@pytest.mark.parametrize("attribute", ("retry", "aioretry"))
+@pytest.mark.parametrize(
+    "jitter, expectation",
+    ((1, does_not_raise()),
+     ((1, 2), does_not_raise()),
+     ("abc", pytest.raises(TypeError))))
+def test_retry_jitter_values(exception, attribute, jitter, expectation):
+    """Test validation of jitter values"""
+    func = getattr(kaioretry, attribute)
+    with expectation:
+        func(exception, jitter=jitter)
