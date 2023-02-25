@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.9.1] - 2023-02-25
+
 ### Changed
 - update kaioretry.decorator module documentation
 - update kaioretry.context module documentation
