@@ -1,4 +1,79 @@
-"""The retry decorator implementation"""
+"""Not considering the 2 main functions :py:func:`kaioretry.retry` and
+:py:func:`kaioretry.aioretry` decorators, KaioRetry is basically split in two
+main classes, with shared responsabilities:
+
+* :py:class:`~kaioretry.Retry` is in charge of handling the decoration and the
+  retry process;
+
+* and :py:class:`~kaioretry.Context` is in charge of keeping track of the try
+  count and delaying management.
+
+
+.. code-block:: python
+   :caption: The object can be used to decorate either regular or coroutine
+             function.
+
+   from kaioretry import Retry
+
+   retry = Retry(ValueError)
+
+   @retry
+   def something_we_dont_wanna_see_crashing():
+       ...
+
+   @retry
+   async def some_async_thing_we_dont_wanna_see_crashing():
+       # The decorated version of this function will still be async
+       ...
+
+
+
+.. code-block:: python
+   :caption: You can also use the object methods to explicitly decorate as
+             regular or coroutine function.
+
+   from kaioretry import Retry
+
+   retry = Retry(ValueError)
+
+   # On one hand, the retry method produces regular functions.
+   @retry.retry
+   def something_we_dont_wanna_see_crashing():
+       ...
+
+   # On the other hand, the aioretry method produces coroutine functions.
+   @retry.aioretry
+   async def some_async_thing_we_dont_wanna_see_crashing():
+       # The decorated version of this function will still be async
+       ...
+
+   # From a KaioRetry point of view, you can use aioretry to decorate a
+   # regular function to produce a coroutine function. It's designed to work.
+   @retry.aioretry
+   def something_regular():
+       ...
+
+
+
+To refine the number of tries, or delay between said tries. You must use a
+:py:class:`~kaioretry.Context` object and give it to
+:py:class:`~kaioretry.Retry` constructor.
+
+.. code-block:: python
+   :caption: Use and pass a Context object
+
+   from kaioretry import Context, Retry
+
+   context = Context(tries=3, delay=1)
+
+   @Retry(ValueError, context=context)
+   def genkidama(...):
+       ...
+
+
+Check out the classes documentation and attributes for more fine tuning.
+
+"""
 
 import inspect
 import logging

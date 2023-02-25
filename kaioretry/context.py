@@ -1,4 +1,92 @@
-"""Retry Context Implementation"""
+"""A Retry Context is the time keeper and an accountant: its responsible for
+maintaining the delay value and the retry count.
+
+
+.. code-block:: python
+   :caption: Limited number of tries (iterations)
+
+   >>> from kaioretry import Context
+   >>> context = Context(tries=4)
+   >>> for i, _ in enumerate(context):
+   ...    print(i)
+   ...
+   0
+   1
+   2
+   3
+   >>> 
+
+
+Should you wish to persist indefinitely. It is supported.
+
+.. code-block:: python
+   :caption: Unlimited number of tries (iterations)
+
+   >>> from kaioretry import Context
+   >>> context = Context(tries=-1)
+   >>> for i, _ in enumerate(context):
+   ...    print(i)
+   ...
+   0
+   1
+   2
+   ... there it goes
+   30
+   31...
+   .... and so on
+   25000
+   .................
+   # It never stops.
+
+
+It's possible to insert delay between tries.
+
+
+.. code-block:: python
+   :caption: Adding a one second delay between tries.
+
+   >>> from kaioretry import Context
+   >>> context = Context(tries=4, delay=1)
+   >>> for i, _ in enumerate(context):
+   ...     print(time())
+   ...
+   1677350589.3510618
+   1677350590.3776977
+   1677350591.403194
+   1677350592.429291
+   >>> 
+
+
+It will also log its actions and will help keep things being traceable by
+adding a per-loop identifier to the logs. e.g:
+
+.. code-block:: python
+   :caption: logging loops
+
+   >>> import sys, logging
+   >>> logging.basicConfig(stream=sys.stdout, encoding='utf-8', level=logging.DEBUG)
+   >>> from kaioretry import Context
+   >>> for _ in context: pass
+   ... 
+   INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: 2 tries remaining
+   INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: sleeping 0 seconds
+   INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: 1 tries remaining
+   INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: sleeping 0 seconds
+   >>> for _ in context: pass
+   ... 
+   INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: 2 tries remaining
+   INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: sleeping 0 seconds
+   INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: 1 tries remaining
+   INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: sleeping 0 seconds
+   >>> 
+
+If you consider this from :py:class:`~kaioretry.Retry` point of view, it means
+that you can keep track of calls, delays and number of tries per calls.
+
+If you want to do more fine tuning to delays and tries, check the
+documentation below.
+
+"""
 
 import time
 import asyncio
