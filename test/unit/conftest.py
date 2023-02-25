@@ -138,4 +138,5 @@ def exception():
 
 @pytest.fixture(params=(1, 2))
 def exceptions(request):
+    """Generate tuple of arbitrary length holding uniq exceptions"""
     return tuple(_exception() for _ in range(request.param))
