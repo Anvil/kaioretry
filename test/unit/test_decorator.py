@@ -1,6 +1,6 @@
 """Retry class unit tests"""
 
-from random import randint
+from random import randint, choice
 from inspect import getfullargspec
 import pytest
 
@@ -29,18 +29,18 @@ async def test_retry(exception, decorator, func, assert_result):
     assert logger.method_calls
 
 
-async def test_retry_final_failure(exception, decorator, func, assert_result):
+async def test_retry_final_failure(exceptions, decorator, func, assert_result):
     """When tries are exhausted, the last raised exception should be
     propagated by the decorator"""
-    side_effect = [exception() for _ in range(randint(1, 10))]
+    side_effect = [choice(exceptions)() for _ in range(randint(1, 10))]
 
     func.side_effect = side_effect
 
-    retry = Retry(exception, context=Context(tries=len(side_effect)))
+    retry = Retry(exceptions, context=Context(tries=len(side_effect)))
     retryable = decorator(retry, func)
 
     assert retryable is not func
-    with pytest.raises(exception) as exc_info:
+    with pytest.raises(exceptions) as exc_info:
         await assert_result(retryable(), None)
 
     # The last raised exception is the last in the side_effect List.
