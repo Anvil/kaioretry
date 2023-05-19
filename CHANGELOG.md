@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.9.2] - 2023-05-19
+
 ### Fixed
 - Make type checkers know we have type informations
 
