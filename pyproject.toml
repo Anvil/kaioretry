@@ -41,3 +41,22 @@ sphinx-autodoc-typehints = ">=1.17"
 [build-system]
 requires = ["poetry-core>=1.4.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+color_output = true
+ignore_missing_imports = false
+pretty = true
+raise_exceptions = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+show_error_end = true
+show_traceback = true
+strict = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+disallow_untyped_decorators = true
+packages = ["kaioretry", "test.static_analysis"]
