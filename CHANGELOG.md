@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Add mypy github action and its badge
+
 ### Changed
 - Update all decorators type annotations in order to allow kaioretry end-users
   to type-lint their code
