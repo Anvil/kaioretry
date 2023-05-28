@@ -78,8 +78,8 @@ Check out the classes documentation and attributes for more fine tuning.
 import inspect
 import logging
 
-from collections.abc import Callable, Awaitable
-from typing import cast, Any, NoReturn, Awaitable as OldAwaitable
+from collections.abc import Callable, Awaitable, Coroutine
+from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, overload
 
 import decorator
 
@@ -212,11 +212,21 @@ class Retry:
                 continue
         self.__final_error(func, last_error)
 
+    @overload
+    def aioretry(self, func: Callable[FuncParam, Awaitable[FuncRetVal]]) \
+        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+        ...
+
+    @overload
+    def aioretry(self, func: Callable[FuncParam, FuncRetVal]) \
+        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+        ...
+
     def aioretry(
             self,
             func: Callable[FuncParam, Awaitable[FuncRetVal]] |
             Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, Awaitable[FuncRetVal]]:
+            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
         """Decorate a function with an async retry decoration.
 
         Given function can either be a coroutine function, a regular
@@ -230,7 +240,7 @@ class Retry:
             as the original function's
 
         """
-        return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
+        return cast(Callable[FuncParam, Coroutine[None, None, FuncRetVal]],
                     decorator.decorate(func, self.__aioretry))
 
     __is_not_async_type = {Awaitable, OldAwaitable}.isdisjoint
