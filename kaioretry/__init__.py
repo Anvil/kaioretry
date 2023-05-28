@@ -3,7 +3,7 @@
 import logging
 import random
 
-from typing import Awaitable, cast
+from typing import cast
 from collections.abc import Callable
 from mypy_extensions import DefaultNamedArg
 
