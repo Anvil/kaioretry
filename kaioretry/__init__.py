@@ -55,13 +55,14 @@ RETRY_PARAMS_DOCSTRING = """
 
 
 def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
-    -> Callable[[Exceptions, int,
-                 DefaultNamedArg(NonNegative, 'delay'),
-                 DefaultNamedArg(Number, 'backoff'),
-                 DefaultNamedArg(Jitter, 'jitter'),
-                 DefaultNamedArg(NonNegative | None, 'max_delay'),
-                 DefaultNamedArg(NonNegative, 'min_delay'),
-                 DefaultNamedArg(logging.Logger, 'logger')],
+    -> Callable[[
+        Exceptions, int,
+        DefaultNamedArg(NonNegative, 'delay'),  # noqa: F821
+        DefaultNamedArg(Number, 'backoff'),  # noqa: F821
+        DefaultNamedArg(Jitter, 'jitter'),  # noqa: F821
+        DefaultNamedArg(NonNegative | None, 'max_delay'),  # noqa: F821
+        DefaultNamedArg(NonNegative, 'min_delay'),  # noqa: F821
+        DefaultNamedArg(logging.Logger, 'logger')],  # noqa: F821
                 Callable[FuncParam, FuncRetVal]]:
     """Create a function that will accept a bunch of parameters and
     create the matching :py:class:`Retry` and :py:class:`Context`
