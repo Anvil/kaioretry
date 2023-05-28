@@ -78,8 +78,8 @@ Check out the classes documentation and attributes for more fine tuning.
 import inspect
 import logging
 
-from collections.abc import Callable, Awaitable
-from typing import cast, Any, NoReturn, Awaitable as OldAwaitable
+from collections.abc import Callable, Awaitable, Coroutine
+from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, overload
 
 import decorator
 
@@ -212,11 +212,21 @@ class Retry:
                 continue
         self.__final_error(func, last_error)
 
+    @overload
+    def aioretry(self, func: Callable[FuncParam, Awaitable[FuncRetVal]]) \
+        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+        ...
+
+    @overload
+    def aioretry(self, func: Callable[FuncParam, FuncRetVal]) \
+        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+        ...
+
     def aioretry(
             self,
             func: Callable[FuncParam, Awaitable[FuncRetVal]] |
             Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, Awaitable[FuncRetVal]]:
+            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
         """Decorate a function with an async retry decoration.
 
         Given function can either be a coroutine function, a regular
@@ -230,7 +240,7 @@ class Retry:
             as the original function's
 
         """
-        return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
+        return cast(Callable[FuncParam, Coroutine[None, None, FuncRetVal]],
                     decorator.decorate(func, self.__aioretry))
 
     __is_not_async_type = {Awaitable, OldAwaitable}.isdisjoint
@@ -266,15 +276,12 @@ class Retry:
         return inspect.iscoroutinefunction(func) or \
             cls._has_async_return_annotation(func)
 
-    def __call__(
-            self, func: Callable[FuncParam, FuncRetVal] |
-            Callable[FuncParam, Awaitable[FuncRetVal]]) \
-            -> Callable[FuncParam, FuncRetVal] | \
-            Callable[FuncParam, Awaitable[FuncRetVal]]:
+    def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
+        -> Callable[FuncParam, FuncRetVal]:
         if self.is_func_async(func):
-            return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
-                        self.aioretry(func))
-        return cast(Callable[FuncParam, FuncRetVal], self.retry(func))
+            return self.aioretry(
+                cast(Callable[FuncParam, Awaitable[Any]], func))
+        return self.retry(func)
 
     def __str__(self) -> str:
         return self.__str
