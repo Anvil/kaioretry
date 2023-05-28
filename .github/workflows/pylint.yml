@@ -21,4 +21,4 @@ jobs:
         poetry install --no-root
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py' | grep -v docs/source/conf.py)
+        pylint $(git ls-files '*.py' | grep -vE 'docs/source/conf.py|test/static_analysis')
