@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.9.4] - 2023-05-28
+
 ### Fixed
 - Fix previous fix -_-
 
