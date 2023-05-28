@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Fix previous fix -_-
+
 ## [0.9.3] - 2023-05-28
 
 ### Fixed

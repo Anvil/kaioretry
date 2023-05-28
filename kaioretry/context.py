@@ -109,7 +109,7 @@ class _ContextIterator:
     # pylint: disable=too-few-public-methods
 
     def __init__(self, identifier: uuid.UUID, sleep: SleepF[Any], tries: int,
-                 delay: NonNegative, update_delay: UpdateDelayF,
+                 delay: NonNegative, update_delay: UpdateDelayFunc,
                  logger: logging.Logger, /) -> None:
         self.__identifier = identifier
         self.__sleep = sleep
@@ -185,7 +185,7 @@ class Context:
     """
 
     def __init__(self, /, tries: int = -1, delay: NonNegative = 0, *,
-                 update_delay: UpdateDelayF = lambda value: value,
+                 update_delay: UpdateDelayFunc = lambda value: value,
                  max_delay: NonNegative | None = None,
                  min_delay: NonNegative = 0,
                  logger: logging.Logger = DEFAULT_LOGGER) -> None:
