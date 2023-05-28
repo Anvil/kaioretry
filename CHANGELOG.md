@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.10.0] - 2023-05-28
+
 ### Added
 - Add mypy github action and its badge
 
