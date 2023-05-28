@@ -44,12 +44,12 @@ class AioretryProtocol(Protocol):
 
     @overload
     def __call__(self, func: Callable[FuncParam, Awaitable[FuncRetVal]]) \
-        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
         ...
 
     @overload
     def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
-        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
         ...
 
     def __call__(

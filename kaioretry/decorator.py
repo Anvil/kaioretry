@@ -214,12 +214,12 @@ class Retry:
 
     @overload
     def aioretry(self, func: Callable[FuncParam, Awaitable[FuncRetVal]]) \
-        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
         ...
 
     @overload
     def aioretry(self, func: Callable[FuncParam, FuncRetVal]) \
-        -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
         ...
 
     def aioretry(
@@ -277,7 +277,7 @@ class Retry:
             cls._has_async_return_annotation(func)
 
     def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
-        -> Callable[FuncParam, FuncRetVal]:
+            -> Callable[FuncParam, FuncRetVal]:
         if self.is_func_async(func):
             return self.aioretry(
                 cast(Callable[FuncParam, Awaitable[Any]], func))
