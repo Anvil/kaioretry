@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.9.3] - 2023-05-28
+
 ### Fixed
 - Fix ExceptionT and UpdateDelayF naming issues
 
