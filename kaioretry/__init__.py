@@ -5,9 +5,10 @@ import random
 
 from typing import Awaitable, cast
 from collections.abc import Callable
+from mypy_extensions import DefaultNamedArg
 
 from .types import Exceptions, NonNegative, Number, Jitter, \
-    FuncParam, FuncRetVal, UpdateDelayFunc, RetryDecorator, JitterTuple
+    FuncParam, FuncRetVal, UpdateDelayFunc, JitterTuple, AioretryProtocol
 from .context import Context
 from .decorator import Retry
 
@@ -54,7 +55,14 @@ RETRY_PARAMS_DOCSTRING = """
 
 
 def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
-    -> RetryDecorator:
+    -> Callable[[Exceptions, int,
+                 DefaultNamedArg(NonNegative, 'delay'),
+                 DefaultNamedArg(Number, 'backoff'),
+                 DefaultNamedArg(Jitter, 'jitter'),
+                 DefaultNamedArg(NonNegative | None, 'max_delay'),
+                 DefaultNamedArg(NonNegative, 'min_delay'),
+                 DefaultNamedArg(logging.Logger, 'logger')],
+                Callable[FuncParam, FuncRetVal]]:
     """Create a function that will accept a bunch of parameters and
     create the matching :py:class:`Retry` and :py:class:`Context`
     objects, in order to be compatible with the origin retry module.
@@ -117,10 +125,7 @@ def retry(retry_obj: Retry) -> Callable[[Callable[FuncParam, FuncRetVal]],
 
 
 @_make_decorator
-def aioretry(retry_obj: Retry) -> Callable[
-        [Callable[FuncParam, FuncRetVal] |
-         Callable[FuncParam, Awaitable[FuncRetVal]]],
-        Callable[FuncParam, Awaitable[FuncRetVal]]]:
+def aioretry(retry_obj: Retry) -> AioretryProtocol:
     """Returns a retry decorator, suitable for both regular functions
     and coroutine functions. The decoration will turn the original
     function to a coroutine function.
