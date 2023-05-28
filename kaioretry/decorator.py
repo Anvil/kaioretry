@@ -276,15 +276,12 @@ class Retry:
         return inspect.iscoroutinefunction(func) or \
             cls._has_async_return_annotation(func)
 
-    def __call__(
-            self, func: Callable[FuncParam, FuncRetVal] |
-            Callable[FuncParam, Awaitable[FuncRetVal]]) \
-            -> Callable[FuncParam, FuncRetVal] | \
-            Callable[FuncParam, Awaitable[FuncRetVal]]:
+    def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
+        -> Callable[FuncParam, FuncRetVal]:
         if self.is_func_async(func):
-            return cast(Callable[FuncParam, Awaitable[FuncRetVal]],
-                        self.aioretry(func))
-        return cast(Callable[FuncParam, FuncRetVal], self.retry(func))
+            return self.aioretry(
+                cast(Callable[FuncParam, Awaitable[Any]], func))
+        return self.retry(func)
 
     def __str__(self) -> str:
         return self.__str
