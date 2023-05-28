@@ -6,6 +6,7 @@
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/kaioretry?color=magenta&style=plastic)](https://pypistats.org/packages/kaioretry)
 
 [![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml)
+[![Mypy Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/mypy.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/mypy.yml)
 [![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml)
 
 
