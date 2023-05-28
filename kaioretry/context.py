@@ -96,7 +96,7 @@ import uuid
 from typing import cast, Awaitable, Any, TypeVar
 from collections.abc import Callable, Generator, AsyncGenerator
 
-from .types import NonNegative, Number, UpdateDelayF
+from .types import NonNegative, Number, UpdateDelayFunc
 
 
 SleepRetVal = TypeVar('SleepRetVal', None, Awaitable[None])

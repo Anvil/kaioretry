@@ -7,7 +7,7 @@ from typing import Awaitable, cast
 from collections.abc import Callable
 
 from .types import Exceptions, NonNegative, Number, Jitter, \
-    FuncParam, FuncRetVal, UpdateDelayF, RetryDecorator, JitterTuple
+    FuncParam, FuncRetVal, UpdateDelayFunc, RetryDecorator, JitterTuple
 from .context import Context
 from .decorator import Retry
 

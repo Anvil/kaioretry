@@ -12,9 +12,9 @@ from typing_extensions import Protocol
 # pylint: disable=too-few-public-methods
 
 
-ExceptionT: TypeAlias = type[BaseException]
-ExceptionList: TypeAlias = tuple[ExceptionT, ...]
-Exceptions: TypeAlias = ExceptionList | ExceptionT
+ExceptionType: TypeAlias = type[BaseException]
+ExceptionList: TypeAlias = tuple[ExceptionType, ...]
+Exceptions: TypeAlias = ExceptionList | ExceptionType
 
 
 Number: TypeAlias = int | float
@@ -36,7 +36,7 @@ FuncRetVal = TypeVar('FuncRetVal')
 Function: TypeAlias = Callable[..., Any]
 
 
-UpdateDelayF: TypeAlias = Callable[[NonNegative], NonNegative]
+UpdateDelayFunc: TypeAlias = Callable[[NonNegative], NonNegative]
 
 
 class RetryDecorator(Protocol):
