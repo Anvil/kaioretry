@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+- Update all decorators type annotations in order to allow kaioretry end-users
+  to type-lint their code
+
 ## [0.9.4] - 2023-05-28
 
 ### Fixed
