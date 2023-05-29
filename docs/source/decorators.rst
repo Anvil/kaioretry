@@ -5,10 +5,10 @@ The `retry` and `aioretry` decorators
 :py:func:`kaioretry.retry`
 ---------------------------
 
-.. autofunction:: kaioretry.retry
+.. autodecorator:: kaioretry.retry
 
 
 :py:func:`kaioretry.aioretry`
 -----------------------------
 
-.. autofunction:: kaioretry.aioretry
+.. autodecorator:: kaioretry.aioretry

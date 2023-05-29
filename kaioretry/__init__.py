@@ -115,7 +115,8 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
 @_make_decorator
 def retry(retry_obj: Retry) -> Callable[[Callable[FuncParam, FuncRetVal]],
                                         Callable[FuncParam, FuncRetVal]]:
-    """Returns a retry decorator, suitable for regular functions.
+    """Return a new retry decorator, suitable for regular functions. Functions
+    decorated will transparently retry when a exception is raised.
 
     %PARAMS%
 
@@ -127,9 +128,16 @@ def retry(retry_obj: Retry) -> Callable[[Callable[FuncParam, FuncRetVal]],
 
 @_make_decorator
 def aioretry(retry_obj: Retry) -> AioretryProtocol:
-    """Returns a retry decorator, suitable for both regular functions
-    and coroutine functions. The decoration will turn the original
-    function to a coroutine function.
+    """Similar to :py:func:`~kaioretry.retry`, this function will produce a
+    new async retry decorator that will produce exact the same results as said
+    :py:func:`~kaioretry.retry`, *except* that the produced decorated
+    functions will be :py:class:`~collections.abc.Coroutine`s, and that delays
+    induced by the `delay` constructor parameter and its friends, will be
+    implemented with :py:mod:`asyncio` functions.
+
+    That means the decorated version of given functions will be eligible to
+    :py:func:`asyncio.run` or to an `await` statement, even if given `func`
+    parameter is not originally an async function to begin with.
 
     %PARAMS%
 

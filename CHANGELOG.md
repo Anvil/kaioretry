@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Some minor documentation updates
+
 ## [0.10.1] - 2023-05-29
 
 ### Added
