@@ -78,12 +78,13 @@ Check out the classes documentation and attributes for more fine tuning.
 import inspect
 import logging
 
-from collections.abc import Callable, Awaitable, Coroutine
+from collections.abc import Callable, Awaitable
 from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, overload
 
 import decorator
 
-from .types import Exceptions, ExceptionList, FuncParam, FuncRetVal, Function
+from .types import Exceptions, ExceptionList, FuncParam, \
+    FuncRetVal, Function, AioretryCoro, AwaitableFunc, AnyFunction
 from .context import Context
 
 
@@ -194,7 +195,7 @@ class Retry:
 
     async def __aioretry(
             self,
-            func: Callable[FuncParam, Awaitable[FuncRetVal]] |
+            func: AwaitableFunc[FuncParam, FuncRetVal] |
             Callable[FuncParam, FuncRetVal],
             *args: FuncParam.args,
             **kwargs: FuncParam.kwargs) -> FuncRetVal:
@@ -213,20 +214,17 @@ class Retry:
         self.__final_error(func, last_error)
 
     @overload
-    def aioretry(self, func: Callable[FuncParam, Awaitable[FuncRetVal]]) \
-            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+    def aioretry(self, func: AwaitableFunc[FuncParam, FuncRetVal]) \
+            -> AioretryCoro[FuncParam, FuncRetVal]:
         ...
 
     @overload
     def aioretry(self, func: Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+            -> AioretryCoro[FuncParam, FuncRetVal]:
         ...
 
-    def aioretry(
-            self,
-            func: Callable[FuncParam, Awaitable[FuncRetVal]] |
-            Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+    def aioretry(self, func: AnyFunction[FuncParam, FuncRetVal]) \
+            -> AioretryCoro[FuncParam, FuncRetVal]:
         """Decorate a function with an async retry decoration.
 
         Given function can either be a coroutine function, a regular
@@ -240,7 +238,7 @@ class Retry:
             as the original function's
 
         """
-        return cast(Callable[FuncParam, Coroutine[None, None, FuncRetVal]],
+        return cast(AioretryCoro[FuncParam, FuncRetVal],
                     decorator.decorate(func, self.__aioretry))
 
     __is_not_async_type = {Awaitable, OldAwaitable}.isdisjoint

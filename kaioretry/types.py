@@ -34,27 +34,31 @@ FuncRetVal = TypeVar('FuncRetVal')
 
 Function: TypeAlias = Callable[..., Any]
 
-
 UpdateDelayFunc: TypeAlias = Callable[[NonNegative], NonNegative]
 
+
+AioretryCoro: TypeAlias = Callable[
+    FuncParam, Coroutine[None, None, FuncRetVal]]
+
+AwaitableFunc: TypeAlias = Callable[FuncParam, Awaitable[FuncRetVal]]
+
+AnyFunction: TypeAlias = AwaitableFunc[FuncParam, FuncRetVal] | \
+    Callable[FuncParam, FuncRetVal]
 
 class AioretryProtocol(Protocol):
 
     """The type of the main aioretry decorator"""
 
     @overload
-    def __call__(self, func: Callable[FuncParam, Awaitable[FuncRetVal]]) \
-            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+    def __call__(self, func: AwaitableFunc[FuncParam, FuncRetVal]) \
+            -> AioretryCoro[FuncParam, FuncRetVal]:
         ...
 
     @overload
     def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+            -> AioretryCoro[FuncParam, FuncRetVal]:
         ...
 
-    def __call__(
-            self,
-            func: Callable[FuncParam, Awaitable[FuncRetVal]] |
-            Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, Coroutine[None, None, FuncRetVal]]:
+    def __call__(self, func: AnyFunction[FuncParam, FuncRetVal]) \
+            -> AioretryCoro[FuncParam, FuncRetVal]:
         ...
