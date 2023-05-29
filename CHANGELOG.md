@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.10.1] - 2023-05-29
+
 ### Added
 - Introduce AioretryCoro, AwaitableFunc and AnyFunction type aliases
 
