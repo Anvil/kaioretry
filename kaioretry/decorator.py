@@ -185,11 +185,18 @@ class Retry:
 
     def retry(self, func: Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, FuncRetVal]:
-        """Decorate a regular function.
+        """This method is a decorator. The returned and newly-produced
+        function will the same signature, docstring and type annotations as
+        the original one but will also transparently be able to retry when an
+        exception is raised, as described earlier.
 
-        The decoration will retry the original function every time it
-        raises an exception, until number of tries from the context
-        are exhausted.
+        If you intend to obtain retry mechanism on an
+        :py:mod:`asyncio`-compatible coroutine function, look at the
+        :py:meth:`~kaioretry.Retry.aioretry` instead.
+
+        :param func: Any function. Really.
+
+        :returns: A same-style function.
         """
         return decorator.decorate(func, self.__retry)
 
