@@ -266,10 +266,13 @@ class Retry:
 
     @classmethod
     def is_func_async(cls, func: Function) -> bool:
-        """Tell if a function can be considered async, either because
-        it's a coroutine, an asyncgenerator or because it's annotated
+        """Tell if a function can be considered async, either because it's a
+        :py:class:`~collections.abc.Coroutine`, an
+        :py:class:`~collections.abc.AsyncGenerator` or because it is annotated
         to return :py:class:`collections.abc.Awaitable` or
         :py:class:`typing.Awaitable`.
+
+        :param func: any callable, basically.
         """
         return inspect.iscoroutinefunction(func) or \
             cls._has_async_return_annotation(func)
