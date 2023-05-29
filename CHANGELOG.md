@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.10.2] - 2023-05-29
+
 ### Changed
 - Some minor documentation updates
 
