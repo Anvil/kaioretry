@@ -225,17 +225,20 @@ class Retry:
 
     def aioretry(self, func: AnyFunction[FuncParam, FuncRetVal]) \
             -> AioretryCoro[FuncParam, FuncRetVal]:
-        """Decorate a function with an async retry decoration.
+        """Similar to :py:meth:`~Retry.retry`, this method is a decorator and
+        will produce exact the same result, *except* that the decorated
+        function is a :py:class:`~collections.abc.Coroutine`, and that delays
+        induced by the `delay` constructor parameter and its friends, will be
+        implemented with :py:mod:`asyncio` functions.
 
-        Given function can either be a coroutine function, a regular
-        function, or a regular function returning an awaitable
-        object. If its result is an awaitable object, then it will be
-        awaited by the decoration before being returned.
+        That means the decorated version of the function will be eligible to
+        :py:func:`asyncio.run` or to an `await` statement, even if given
+        `func` parameter is not originally an async function to begin with.
 
-        :param func: any callable.
+        :param func: any callable. Just told you.
 
         :returns: an async function that will return the same result
-            as the original function's
+            as the original function's once awaited.
 
         """
         return cast(AioretryCoro[FuncParam, FuncRetVal],
