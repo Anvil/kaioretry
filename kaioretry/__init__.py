@@ -128,11 +128,12 @@ def retry(retry_obj: Retry) -> Callable[[Callable[FuncParam, FuncRetVal]],
 
 @_make_decorator
 def aioretry(retry_obj: Retry) -> AioretryProtocol:
-    """Similar to :py:func:`~kaioretry.retry`, this function will produce a
-    new async retry decorator that will produce exact the same results as said
-    :py:func:`~kaioretry.retry`, *except* that the produced decorated
-    functions will be :py:class:`~collections.abc.Coroutine`s, and that delays
-    induced by the `delay` constructor parameter and its friends, will be
+    """Similar to :py:func:`~kaioretry.retry`, this function will produce
+    a new async retry decorator that will produce exact the same
+    results as said :py:func:`~kaioretry.retry`, *except* that the
+    produced decorated functions will be typed as a
+    :py:class:`~collections.abc.Coroutine`, and that delays induced by
+    the `delay` constructor parameter and its friends, will be
     implemented with :py:mod:`asyncio` functions.
 
     That means the decorated version of given functions will be eligible to
