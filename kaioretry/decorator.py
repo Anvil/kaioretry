@@ -295,8 +295,7 @@ class Retry:
     def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, FuncRetVal]:
         if self.is_func_async(func):
-            return self.aioretry(
-                cast(Callable[FuncParam, Awaitable[Any]], func))
+            return cast(Callable[FuncParam, FuncRetVal], self.aioretry(func))
         return self.retry(func)
 
     def __str__(self) -> str:
