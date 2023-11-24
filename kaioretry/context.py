@@ -111,6 +111,7 @@ class _ContextIterator:
     def __init__(self, identifier: uuid.UUID, sleep: SleepF[Any], tries: int,
                  delay: NonNegative, update_delay: UpdateDelayFunc,
                  logger: logging.Logger, /) -> None:
+        # pylint: disable=too-many-arguments
         self.__identifier = identifier
         self.__sleep = sleep
         self.__delay = delay
@@ -189,6 +190,7 @@ class Context:
                  max_delay: NonNegative | None = None,
                  min_delay: NonNegative = 0,
                  logger: logging.Logger = DEFAULT_LOGGER) -> None:
+        # pylint: disable=too-many-arguments
         if tries == 0:
             raise ValueError("tries value cannot be 0")
         self.__tries = tries
