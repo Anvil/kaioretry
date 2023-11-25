@@ -93,7 +93,7 @@ import asyncio
 import logging
 import uuid
 
-from typing import cast, Awaitable, Any, TypeVar
+from typing import cast, Awaitable, Any, TypeVar, Generic
 from collections.abc import Callable, Generator, AsyncGenerator
 
 from .types import NonNegative, Number, UpdateDelayFunc
@@ -103,7 +103,7 @@ SleepRetVal = TypeVar('SleepRetVal', None, Awaitable[None])
 SleepF = Callable[[Number], SleepRetVal]
 
 
-class _ContextIterator:
+class _ContextIterator(Generic[SleepRetVal]):
     """Single-usage helper class for Context objects."""
 
     # pylint: disable=too-few-public-methods
@@ -111,6 +111,7 @@ class _ContextIterator:
     def __init__(self, identifier: uuid.UUID, sleep: SleepF[Any], tries: int,
                  delay: NonNegative, update_delay: UpdateDelayFunc,
                  logger: logging.Logger, /) -> None:
+        # pylint: disable=too-many-arguments
         self.__identifier = identifier
         self.__sleep = sleep
         self.__delay = delay
@@ -189,6 +190,7 @@ class Context:
                  max_delay: NonNegative | None = None,
                  min_delay: NonNegative = 0,
                  logger: logging.Logger = DEFAULT_LOGGER) -> None:
+        # pylint: disable=too-many-arguments
         if tries == 0:
             raise ValueError("tries value cannot be 0")
         self.__tries = tries
@@ -223,7 +225,7 @@ class Context:
         return delay
 
     def __make_iterator(
-            self, sleep: SleepF[Any]) -> Generator[SleepRetVal, None, None]:
+            self, sleep: SleepF[SleepRetVal]) -> Generator[SleepRetVal, None, None]:
         return iter(_ContextIterator(
             uuid.uuid4(), sleep, self.__tries, self.__delay,
             self.__update_delay, self.__logger))
@@ -234,8 +236,7 @@ class Context:
 
     async def __aiter__(self) -> AsyncGenerator[None, None]:
         yield
-        for sleep in cast(Generator[Awaitable[None], None, None],
-                          self.__make_iterator(asyncio.sleep)):
+        for sleep in self.__make_iterator(asyncio.sleep):
             await sleep
             yield
 

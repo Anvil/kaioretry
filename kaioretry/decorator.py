@@ -165,10 +165,13 @@ class Retry:
         self.__log(
             logging.INFO, "%s has succesfully completed", func.__name__)
 
-    # pylint: disable=inconsistent-return-statements
     def __retry(self, func: Callable[FuncParam, FuncRetVal],
                 *args: FuncParam.args,
                 **kwargs: FuncParam.kwargs) -> FuncRetVal:
+        # pylint: disable=inconsistent-return-statements
+        # For some reason, pylint and python 3.12 seem to raise false
+        # positives no-members warnings on ParamSpec.
+        # pylint: disable=no-member
         for _ in self.__context:
             try:
                 result = func(*args, **kwargs)
@@ -206,6 +209,8 @@ class Retry:
             Callable[FuncParam, FuncRetVal],
             *args: FuncParam.args,
             **kwargs: FuncParam.kwargs) -> FuncRetVal:
+        # See above.
+        # pylint: disable=no-member
         async for _ in self.__context:
             try:
                 result = func(*args, **kwargs)
@@ -290,8 +295,7 @@ class Retry:
     def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, FuncRetVal]:
         if self.is_func_async(func):
-            return self.aioretry(
-                cast(Callable[FuncParam, Awaitable[Any]], func))
+            return cast(Callable[FuncParam, FuncRetVal], self.aioretry(func))
         return self.retry(func)
 
     def __str__(self) -> str:
