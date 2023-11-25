@@ -9,6 +9,7 @@
 ### Changes
 
 ### Fixes
+* Add missing sphinx-rtd-theme documentation dependencies
 
 ### Breaks
 

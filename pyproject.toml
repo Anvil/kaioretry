@@ -39,6 +39,7 @@ optional = true
 [tool.poetry.group.sphinx.dependencies]
 sphinx = ">=5"
 sphinx-autodoc-typehints = ">=1.17"
+sphinx-rtd-theme = "*"
 
 [build-system]
 requires = ["poetry-core>=1.4.0"]
