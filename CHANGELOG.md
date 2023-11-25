@@ -1,6 +1,7 @@
 # Changelog
 
 
+
 ## Unreleased
 ---
 
@@ -9,9 +10,15 @@
 ### Changes
 
 ### Fixes
-* Add missing sphinx-rtd-theme documentation dependencies
 
 ### Breaks
+
+
+## 0.11.1 - (2023-11-25)
+---
+
+### Fixes
+* Add missing sphinx-rtd-theme documentation dependencies
 
 
 ## 0.11.0 - (2023-11-25)

@@ -13,7 +13,7 @@ from .context import Context
 from .decorator import Retry
 
 
-__version__ = "0.11.0"
+__version__ = "0.11.1"
 
 
 RETRY_PARAMS_DOCSTRING = """
