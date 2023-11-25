@@ -1,24 +1,23 @@
 #!/bin/bash
-# 
 
 set -ex
 
-[[ $# -eq 1 ]] || return
-
-version=$1
+version=$(changelog suggest)
+current=$(changelog current)
 
 latest_tag=$(git describe --tags --abbrev=0)
 
-[[ -n $(git diff "$latest_tag" -- CHANGELOG.md) ]]
+# Safety check
+[[ $latest_tag != $current ]]
+# No changes ?
+[[ $version != $latest_tag ]]
+
+changelog release --yes
 
 poetry version "$version"
 
 sed -i "s/\(__version__ = \+\)\(.\).*/\1\2$version\2/" kaioretry/__init__.py
 sed -i "s/\(release = \+\)\(.\).*/\1\2$version\2/" docs/source/conf.py
-
-date=$(date +%Y-%m-%d)
-
-sed -i "s/## \[Unreleased\]/&\n\n## [$version] - $date/" CHANGELOG.md
 
 git commit -m "bump version to $version" \
     pyproject.toml CHANGELOG.md kaioretry/__init__.py docs/source/conf.py
