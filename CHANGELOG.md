@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Add
+- Add python 3.12 support
+
+### Fixed
+- Fix Context and _ContextIterator type thing
+
 ## [0.10.2] - 2023-05-29
 
 ### Changed
