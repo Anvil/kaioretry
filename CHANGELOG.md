@@ -7,6 +7,7 @@
 - Add python 3.12 support
 
 ### Changes
+- Use changelog-cli to handle changelog and version
 
 ### Fixes
 - minor issue in aioretry docstring format
