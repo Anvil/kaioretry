@@ -1,6 +1,19 @@
 # Changelog
 
+
 ## Unreleased
+---
+
+### New
+
+### Changes
+
+### Fixes
+
+### Breaks
+
+
+## 0.11.0 - (2023-11-25)
 ---
 
 ### New
@@ -13,7 +26,6 @@
 - minor issue in aioretry docstring format
 - Fix Context and _ContextIterator type thing
 
-### Breaks
 
 ## [0.10.2] - 2023-05-29
 
