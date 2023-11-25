@@ -8,6 +8,7 @@
 [![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/pylint.yml)
 [![Mypy Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/mypy.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/mypy.yml)
 [![Pylint Static Quality Github Action](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml/badge.svg)](https://github.com/Anvil/kaioretry/actions/workflows/python-app.yml)
+[![Documentation Status](https://readthedocs.org/projects/kaioretry/badge/?version=latest)](https://kaioretry.readthedocs.io/en/latest/?badge=latest)
 
 
 KaioRetry is (yet another) retry decorator implementation, which is
