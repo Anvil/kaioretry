@@ -22,7 +22,6 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-decorator = ">=5.1.1"
 typing_extensions = ">=4.5.0"
 mypy-extensions = ">=1"
 
