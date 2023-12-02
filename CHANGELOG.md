@@ -10,6 +10,7 @@
 ### Changes
 
 ### Fixes
+* fix retry/aioretry decorators type hints
 
 ### Breaks
 

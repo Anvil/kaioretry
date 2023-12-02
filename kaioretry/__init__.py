@@ -5,7 +5,7 @@ import random
 
 from typing import cast
 from collections.abc import Callable
-from mypy_extensions import DefaultNamedArg
+from mypy_extensions import DefaultNamedArg, DefaultArg
 
 from .types import Exceptions, NonNegative, Number, Jitter, \
     FuncParam, FuncRetVal, UpdateDelayFunc, JitterTuple, AioretryProtocol
@@ -56,7 +56,8 @@ RETRY_PARAMS_DOCSTRING = """
 
 def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
     -> Callable[[
-        Exceptions, int,
+        DefaultArg(Exceptions, 'exceptions'),
+        DefaultArg(int, 'tries'),
         DefaultNamedArg(NonNegative, 'delay'),  # noqa: F821
         DefaultNamedArg(Number, 'backoff'),  # noqa: F821
         DefaultNamedArg(Jitter, 'jitter'),  # noqa: F821
