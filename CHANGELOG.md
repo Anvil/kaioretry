@@ -10,9 +10,15 @@
 ### Changes
 
 ### Fixes
-* fix retry/aioretry decorators type hints
 
 ### Breaks
+
+
+## 0.11.2 - (2023-12-02)
+---
+
+### Fixes
+* fix retry/aioretry decorators type hints
 
 
 ## 0.11.1 - (2023-11-25)
