@@ -6,14 +6,22 @@
 ---
 
 ### New
-* describe pylint issue in README.md
 
 ### Changes
-* remove the need for decorator dependency
 
 ### Fixes
 
 ### Breaks
+
+
+## 0.12.0 - (2023-12-03)
+---
+
+### New
+* describe pylint issue in README.md
+
+### Changes
+* remove the need for decorator dependency
 
 
 ## 0.11.2 - (2023-12-02)
