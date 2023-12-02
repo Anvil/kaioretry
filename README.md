@@ -42,4 +42,57 @@ If you care to read more, a more lengthy documentation is available on
 [readthedocs](https://kaioretry.readthedocs.io/en/latest/).
 
 
-### Feedback welcome.
+# Known Issues
+
+## Pylint
+
+[Pylint](https://pylint.readthedocs.io/en/latest/), it seems, is not [really
+good a detecting decorators that change function
+signatures](https://github.com/pylint-dev/pylint/issues/3108), and kaioretry
+defines and uses a lot of decorators (relatively speaking).
+
+This means that such basic code:
+
+```python
+from kaioretry import aioretry
+
+@aioretry(exceptions=ZeroDivisionError)
+async def func(x, y):
+    return x / y
+```
+
+Will trigger the following pylint errors:
+
+```
+E1120: No value for argument 'retry_obj' in function call (no-value-for-parameter)
+```
+
+According to pylint documentation, the only way to widely work around this
+issue is to use the
+[`signature-mutators`](https://pylint.pycqa.org/en/latest/user_guide/configuration/all-options.html#signature-mutators)
+feature of pylint. This can be done either on the command line:
+
+```
+pylint --signature-mutators=kaioretry._make_decorator
+```
+
+Or through pylint configuration file:
+
+```ini
+# The TYPECHECK section accepts a signature-mutators directive.
+[TYPECHECK]
+
+# List of decorators that change the signature of a decorated function.
+signature-mutators=kaioretry._make_decorator
+```
+
+(Of course, you can inline a `# pylint: disable=no-value-for-parameter`
+comment on all `aioretry()` and `retry()` call lines, and it can be good
+enough to disable a one-time warning, but repeating that line can be
+tedious. The `signature-mutators` directive will globally disable the
+signature-checking for `aioretry()` and `retry()` calls, so this can be easier
+depending of your own usage of kaioretry.)
+
+# Feedback welcome.
+
+Always.
