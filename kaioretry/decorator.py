@@ -81,8 +81,6 @@ import logging
 from collections.abc import Callable, Awaitable
 from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, overload
 
-import decorator
-
 from .types import Exceptions, ExceptionList, FuncParam, \
     FuncRetVal, Function, AioretryCoro, AwaitableFunc, AnyFunction
 from .context import Context
@@ -165,26 +163,29 @@ class Retry:
         self.__log(
             logging.INFO, "%s has succesfully completed", func.__name__)
 
-    def __retry(self, func: Callable[FuncParam, FuncRetVal],
-                *args: FuncParam.args,
-                **kwargs: FuncParam.kwargs) -> FuncRetVal:
-        # pylint: disable=inconsistent-return-statements
-        # For some reason, pylint and python 3.12 seem to raise false
-        # positives no-members warnings on ParamSpec.
-        # pylint: disable=no-member
-        for _ in self.__context:
+    @staticmethod
+    def __fix_decoration(original: Callable[..., Any],
+                         wrapped: Callable[..., Any]) -> None:
+        """Apply original function metadata to wrapped function.
+
+        This is basically a rip off of what is done in the decorate function
+        from the decorator module.
+        """
+        sig = inspect.signature(original)
+        wrapped.__wrapped__ = original      # type: ignore[attr-defined]
+        wrapped.__signature__ = sig         # type: ignore[attr-defined]
+
+        for attr in ("__name__", "__doc__", "__qualname__", "__defaults__",
+                     "__kwdefaults__", "__annotations__", "__module__"):
             try:
-                result = func(*args, **kwargs)
-                self.__success(func)
-                return result
-            # It does not matter if it's broad :p this is user
-            # configuration.
-            # pylint: disable=broad-except
-            except self.__exceptions as error:
-                self.__caught_error(func, error)
-                last_error = error
+                setattr(wrapped, attr, getattr(original, attr))
+            except AttributeError:
                 continue
-        self.__final_error(func, last_error)
+        try:
+            # Not sure about that.
+            wrapped.__dict__.update(original.__dict__)
+        except AttributeError:
+            pass
 
     def retry(self, func: Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, FuncRetVal]:
@@ -201,29 +202,29 @@ class Retry:
 
         :returns: A same-style function.
         """
-        return decorator.decorate(func, self.__retry)
 
-    async def __aioretry(
-            self,
-            func: AwaitableFunc[FuncParam, FuncRetVal] |
-            Callable[FuncParam, FuncRetVal],
-            *args: FuncParam.args,
-            **kwargs: FuncParam.kwargs) -> FuncRetVal:
-        # See above.
-        # pylint: disable=no-member
-        async for _ in self.__context:
-            try:
-                result = func(*args, **kwargs)
-                if inspect.isawaitable(result):
-                    result = await result
-                self.__success(func)
-                return cast(FuncRetVal, result)
-            # pylint: disable=broad-except
-            except self.__exceptions as error:
-                self.__caught_error(func, error)
-                last_error = error
-                continue
-        self.__final_error(func, last_error)
+        def wrapped(*args: FuncParam.args,
+                    **kwargs: FuncParam.kwargs) -> FuncRetVal:
+            # pylint: disable=inconsistent-return-statements
+            # For some reason, pylint and python 3.12 seem to raise false
+            # positives no-members warnings on ParamSpec.
+            # pylint: disable=no-member
+            for _ in self.__context:
+                try:
+                    result = func(*args, **kwargs)
+                    self.__success(func)
+                    return result
+                # It does not matter if it's broad :p this is user
+                # configuration.
+                # pylint: disable=broad-except
+                except self.__exceptions as error:
+                    self.__caught_error(func, error)
+                    last_error = error
+                    continue
+            self.__final_error(func, last_error)
+
+        self.__fix_decoration(func, wrapped)
+        return wrapped
 
     @overload
     def aioretry(self, func: AwaitableFunc[FuncParam, FuncRetVal]) \
@@ -253,8 +254,26 @@ class Retry:
             as the original function's once awaited.
 
         """
-        return cast(AioretryCoro[FuncParam, FuncRetVal],
-                    decorator.decorate(func, self.__aioretry))
+        async def wrapped(*args: FuncParam.args,
+                          **kwargs: FuncParam.kwargs) -> FuncRetVal:
+            # See above.
+            # pylint: disable=no-member
+            async for _ in self.__context:
+                try:
+                    result = func(*args, **kwargs)
+                    if inspect.isawaitable(result):
+                        result = await result
+                    self.__success(func)
+                    return cast(FuncRetVal, result)
+                # pylint: disable=broad-except
+                except self.__exceptions as error:
+                    self.__caught_error(func, error)
+                    last_error = error
+                    continue
+            self.__final_error(func, last_error)
+
+        self.__fix_decoration(func, wrapped)
+        return wrapped
 
     __is_not_async_type = {Awaitable, OldAwaitable}.isdisjoint
 
