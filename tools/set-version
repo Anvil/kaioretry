@@ -2,6 +2,8 @@
 
 set -ex
 
+[[ $(git branch --show-current) = main ]]
+
 version=$(changelog suggest)
 current=$(changelog current)
 
