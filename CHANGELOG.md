@@ -6,6 +6,7 @@
 ---
 
 ### New
+* describe pylint issue in README.md
 
 ### Changes
 
