@@ -56,8 +56,8 @@ RETRY_PARAMS_DOCSTRING = """
 
 def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
     -> Callable[[
-        DefaultArg(Exceptions, 'exceptions'),
-        DefaultArg(int, 'tries'),
+        DefaultArg(Exceptions, 'exceptions'),  # noqa: F821
+        DefaultArg(int, 'tries'),              # noqa: F821
         DefaultNamedArg(NonNegative, 'delay'),  # noqa: F821
         DefaultNamedArg(Number, 'backoff'),  # noqa: F821
         DefaultNamedArg(Jitter, 'jitter'),  # noqa: F821
