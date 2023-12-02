@@ -9,6 +9,7 @@
 * describe pylint issue in README.md
 
 ### Changes
+* remove the need for decorator dependency
 
 ### Fixes
 
