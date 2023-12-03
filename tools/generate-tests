@@ -61,38 +61,38 @@ def functions(input_data):
                         return_type=return_type, async_kw=async_kw, **data)}
 
 
-DECORATOR_PARAMS = {"unnamed": "Exception, 2",
-                    "named": "exceptions=Exception, tries=2"}
+def decorations(input_data) -> str:
+    """ Generate decorated functions """
 
-MAIN_DECORATOR_TEMPLATES = {
-    "main_direct": """from kaioretry import {decorator_name}
+    decorator_params = (("unnamed", "Exception, 2"),
+                        ("named", "exceptions=Exception, tries=2"))
+
+    main_decorator_templates = (
+        ("main_direct", "func", """from kaioretry import {decorator_name}
 
 
 @{decorator_name}({dparams})
 {function}
-""",
-    "main_by_call": """from kaioretry import {decorator_name}
+"""),
+        ("main_by_call", "wrapped", """from kaioretry import {decorator_name}
 
 
 aioretry_decorator = {decorator_name}({dparams})
 
 
 {function}
-func = aioretry_decorator(func)
-"""
-}
+wrapped = aioretry_decorator(func)
+"""))
+
+    build_decorator_templates = (
+        ("built_direct", "func", """from kaioretry import Retry, Context
 
 
-BUILD_DECORATOR_TEMPLATES = {
-    "built_direct": """from kaioretry import Retry, Context
-
-
-@Retry(
-    exceptions=(ValueError, NotImplementedError),
-    context=Context(tries=5, delay=2)).{decorator_name}
+@Retry(exceptions=(ValueError, NotImplementedError),
+       context=Context(tries=5, delay=2)).{decorator_name}
 {function}
-""",
-    "built_by_call": """from kaioretry import Retry, Context
+"""),
+        ("built_by_call", "wrapped", """from kaioretry import Retry, Context
 
 
 aioretry_decorator = Retry(
@@ -100,24 +100,23 @@ aioretry_decorator = Retry(
     context=Context(tries=5, delay=2)).{decorator_name}
 
 {function}
-func = aioretry_decorator(func)
-"""
-}
+wrapped = aioretry_decorator(func)
+"""))
 
-
-def decorations(input_data) -> str:
-    """ Generate decorated functions """
     for data in functions(input_data):
-        # use of kaioretry.
-        for dtype, decoration in MAIN_DECORATOR_TEMPLATES.items():
-            for dparams_type, dparams in DECORATOR_PARAMS.items():
+        # use of kaioretry.<decorator>xs
+        for dtype, wrapped, decoration in main_decorator_templates:
+            for dparams_type, dparams in decorator_params:
                 dtype = f"{dtype}_{dparams_type}"
                 yield data | {"decoration_type": dtype,
+                              "wrapped": wrapped,
                               "decoration": decoration.format(
                                   dparams=dparams, **data)}
+
         # Recreation of the decorator
-        for dtype, decoration in BUILD_DECORATOR_TEMPLATES.items():
+        for dtype, wrapped, decoration in build_decorator_templates:
             yield data | {"decoration_type": dtype,
+                          "wrapped": wrapped,
                           "decoration": decoration.format(**data)}
 
 
@@ -135,7 +134,7 @@ from typing import Any
 
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
-    result = {await_kw}func({call_params})
+    result = {await_kw }{wrapped}({call_params})
     assert isinstance(result, str)
     return f"parameter is {{parameter}}. result is {{result}}"
 
