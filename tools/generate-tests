@@ -23,7 +23,7 @@ REVEAL_TYPE = int(os.getenv("REVEAL_TYPE", "0"))
 
 def parameters():
     """ Generate parameter signature part """
-    
+
     for ptype in {"int", "Any"}:
         for data in ({"signature": "args",
                       "params_format": "*args: {ptype}",
@@ -46,7 +46,7 @@ def functions():
     ''' ... '''
     return 'return_value'"""
 
-    
+
     for return_type in {"Any", "str"}:
         for ftype, async_kw in (("sync", ""), ("async", "async ")):
             for data in parameters():
@@ -132,11 +132,12 @@ from typing import Any
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
     result = await func({call_params})
+    assert isinstance(result, str)
     return f"parameter is {{parameter}}. result is {{result}}"
 
 
 if __name__ == "__main__":
-    asyncio.run(use_decoration("value"))
+    print(asyncio.run(use_decoration("value")))
 """
 
     if REVEAL_TYPE:
@@ -151,7 +152,7 @@ reveal_type(func)
         yield data | {"program": program_template.format(
             **data, reveal_type=reveal_type)}
 
-        
+
 def program_name(data):
     return ("aioretry_{decoration_type}_{function_type}_{signature}_"
             "{function_parameters_type}_{return_type}.py").format(**data)
