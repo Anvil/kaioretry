@@ -1,0 +1,169 @@
+#!/usr/bin/python
+""" Generate static analysis test files
+
+Those tests have a very heavy number of combinations. Currently 140+.
+
+Some work, some don't. And when they don't, the reason is often unknown:
+* Is it a kaioretry issue ?
+* Is it a mypy issue ?
+* Is it a python issue ?
+
+"""
+
+import os
+import sys
+
+
+# The repository subdirectory the tests are written in
+OUTPUT_DIRECTORY = "test/static_analysis"
+
+# Define if types of the decorated function should be revealed or not
+REVEAL_TYPE = int(os.getenv("REVEAL_TYPE", "0"))
+
+
+def parameters():
+    """ Generate parameter signature part """
+    
+    for ptype in {"int", "Any"}:
+        for data in ({"signature": "args",
+                      "params_format": "*args: {ptype}",
+                      "call_params": "1, 2"},
+                     {"signature": "param",
+                      "params_format": "x: {ptype}, y: {ptype}",
+                      "call_params": "1, 2"},
+                     {"signature": "kwargs",
+                      "params_format": "**kwargs: {ptype}",
+                      "call_params": "x=1, y=2"}):
+            yield data | {
+                "function_parameters_type": ptype.lower(),
+                "params": data["params_format"].format(ptype=ptype)}
+
+
+def functions():
+    """ Generate original function """
+
+    function_template = """{async_kw}def func({params}) -> {return_type}:
+    ''' ... '''
+    return 'return_value'"""
+
+    
+    for return_type in {"Any", "str"}:
+        for ftype, async_kw in (("sync", ""), ("async", "async ")):
+            for data in parameters():
+                yield data | {
+                    "return_type": return_type.lower(),
+                    "function_type": ftype,
+                    "function": function_template.format(
+                        return_type=return_type, async_kw=async_kw, **data)}
+
+
+DECORATOR_PARAMS = {"unnamed": "Exception, 2",
+                    "named": "exceptions=Exception, tries=2"}
+
+MAIN_DECORATOR_TEMPLATES = {
+    "main_direct": """from kaioretry import aioretry
+
+
+@aioretry({dparams})
+{function}
+""",
+    "main_by_call": """from kaioretry import aioretry
+
+
+aioretry_decorator = aioretry({dparams})
+
+
+{function}
+func = aioretry_decorator(func)
+"""
+}
+
+
+BUILD_DECORATOR_TEMPLATES = {
+    "built_direct": """from kaioretry import Retry, Context
+
+
+@Retry(
+    exceptions=(ValueError, NotImplementedError),
+    context=Context(tries=5, delay=2)).aioretry
+{function}
+""",
+    "built_by_call": """from kaioretry import Retry, Context
+
+
+aioretry_decorator = Retry(
+    exceptions=(ValueError, NotImplementedError),
+    context=Context(tries=5, delay=2)).aioretry
+
+{function}
+func = aioretry_decorator(func)
+"""
+}
+
+
+def decorations() -> str:
+    """ Generate decorated functions """
+    for data in functions():
+        # use of kaioretry.aioretry
+        for dtype, decoration in MAIN_DECORATOR_TEMPLATES.items():
+            for dparams_type, dparams in DECORATOR_PARAMS.items():
+                dtype = f"{dtype}_{dparams_type}"
+                yield data | {"decoration_type": dtype,
+                              "decoration": decoration.format(
+                                  dparams=dparams, **data)}
+        # Recreation of the decorator
+        for dtype, decoration in BUILD_DECORATOR_TEMPLATES.items():
+            yield data | {"decoration_type": dtype,
+                          "decoration": decoration.format(**data)}
+
+
+def programs() -> str:
+
+    program_template = """'''Test {program_name} '''
+
+# pylint: disable=unused-import, unused-argument, invalid-name, R0801
+
+
+import asyncio
+from typing import Any
+
+{decoration}{reveal_type}
+
+async def use_decoration(parameter: str) -> str:
+    ''' obtain result and use it '''
+    result = await func({call_params})
+    return f"parameter is {{parameter}}. result is {{result}}"
+
+
+if __name__ == "__main__":
+    asyncio.run(use_decoration("value"))
+"""
+
+    if REVEAL_TYPE:
+        reveal_type = """from typing_extensions import reveal_type
+reveal_type(func)
+"""
+    else:
+        reveal_type = ""
+
+    for data in decorations():
+        data = data | {"program_name": program_name(data)}
+        yield data | {"program": program_template.format(
+            **data, reveal_type=reveal_type)}
+
+        
+def program_name(data):
+    return ("aioretry_{decoration_type}_{function_type}_{signature}_"
+            "{function_parameters_type}_{return_type}.py").format(**data)
+
+
+def generate_test_files(only=()):
+    for data in programs():
+        filename = os.path.join(OUTPUT_DIRECTORY, data["program_name"])
+        if not only or filename in only:
+            with open(filename, 'w') as file_:
+                file_.write(data["program"])
+
+
+if __name__ == "__main__":
+    generate_test_files(set(sys.argv[1:]))

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -ex
+
+failing_tests_branch=static-analysis-failures
+
+declare -a failures=()
+declare -a success=()
+
+for test in test/static_analysis/aiore*py; do
+    if mypy "$test" >/dev/null 2>&1; then
+	success+=("$test")
+	git add "$test"
+	if git commit -m "Add working $test file" >/dev/null; then
+	    echo "New working test: $test"
+	fi
+    else
+	failures+=("$test")
+    fi
+done
+
+if [[ ${#failures[@]} -eq 0 ]]; then
+    echo "No failure detected"
+    exit
+fi
+
+current_branch=$(git branch --show-current)
+
+rm -f "${failures[@]}"
+
+git checkout "$failing_tests_branch"
+git rebase "$current_branch"
+
+REVEAL_TYPES=1 tools/generate-tests "${failures[@]}"
+git add "${failures[@]}"
+git commit -m "add currently-failing static analysis test files"
+
+git checkout -

@@ -6,6 +6,7 @@
 ---
 
 ### New
+* add 115 new working static analysis tests cases
 
 ### Changes
 
