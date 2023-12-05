@@ -176,13 +176,13 @@ class Retry:
         wrapped.__signature__ = sig         # type: ignore[attr-defined]
 
         for attr in ("__name__", "__doc__", "__qualname__", "__defaults__",
-                     "__kwdefaults__", "__annotations__", "__module__"):
+                     "__kwdefaults__", "__annotations__", "__module__",
+                     "__signature_text__"):
             try:
                 setattr(wrapped, attr, getattr(original, attr))
             except AttributeError:
                 continue
         try:
-            # Not sure about that.
             wrapped.__dict__.update(original.__dict__)
         except AttributeError:
             pass
