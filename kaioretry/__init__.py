@@ -2,6 +2,7 @@
 
 import logging
 import random
+import functools
 
 from typing import cast
 from collections.abc import Callable
@@ -80,6 +81,7 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
 
     """
     # pylint: disable=too-many-arguments
+    @functools.wraps(func)
     def decoration(
             exceptions: Exceptions = Exception, tries: int = -1, *,
             delay: NonNegative = 0, backoff: Number = 1,

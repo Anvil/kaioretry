@@ -77,6 +77,7 @@ Check out the classes documentation and attributes for more fine tuning.
 
 import inspect
 import logging
+import functools
 
 from collections.abc import Callable, Awaitable
 from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, overload
@@ -172,20 +173,13 @@ class Retry:
         from the decorator module.
         """
         sig = inspect.signature(original)
-        wrapped.__wrapped__ = original      # type: ignore[attr-defined]
         wrapped.__signature__ = sig         # type: ignore[attr-defined]
 
-        for attr in ("__name__", "__doc__", "__qualname__", "__defaults__",
-                     "__kwdefaults__", "__annotations__", "__module__",
-                     "__signature_text__"):
+        for attr in ("__defaults__", "__kwdefaults__", "__signature_text__"):
             try:
                 setattr(wrapped, attr, getattr(original, attr))
             except AttributeError:
                 continue
-        try:
-            wrapped.__dict__.update(original.__dict__)
-        except AttributeError:
-            pass
 
     def retry(self, func: Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, FuncRetVal]:
@@ -203,6 +197,7 @@ class Retry:
         :returns: A same-style function.
         """
 
+        @functools.wraps(func)
         def wrapped(*args: FuncParam.args,
                     **kwargs: FuncParam.kwargs) -> FuncRetVal:
             # pylint: disable=inconsistent-return-statements
@@ -254,6 +249,8 @@ class Retry:
             as the original function's once awaited.
 
         """
+
+        @functools.wraps(func)
         async def wrapped(*args: FuncParam.args,
                           **kwargs: FuncParam.kwargs) -> FuncRetVal:
             # See above.
