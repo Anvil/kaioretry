@@ -130,3 +130,7 @@ dmypy.json
 
 *~
 poetry.lock
+
+# Emacs-styled temp filesxs
+.\#*
+\#*\#
