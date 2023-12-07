@@ -1,13 +1,13 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 failing_tests_branch=static-analysis-failures
 
 declare -a failures=()
 declare -a success=()
 
-for test in test/static_analysis/aiore*py; do
+for test in test/static_analysis/{aioretry,retry}*py; do
     if mypy "$test" >/dev/null 2>&1; then
 	success+=("$test")
 	git add "$test"
