@@ -9,6 +9,7 @@
 * add 115 new working static analysis tests cases
 
 ### Changes
+* rely on functools.wraps to avoid too much internal code
 
 ### Fixes
 
