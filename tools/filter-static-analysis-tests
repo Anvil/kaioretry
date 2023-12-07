@@ -9,12 +9,15 @@ declare -a success=()
 
 for test in test/static_analysis/{aioretry,retry}*py; do
     if mypy "$test" >/dev/null 2>&1; then
+	printf '%s: success' "$test"
 	success+=("$test")
 	git add "$test"
 	if git commit -m "Add working $test file" >/dev/null; then
-	    echo "New working test: $test"
+	    printf ' (NEW!)'
 	fi
+	printf \\n
     else
+	printf '%s: failed\n' "$test"
 	failures+=("$test")
     fi
 done
