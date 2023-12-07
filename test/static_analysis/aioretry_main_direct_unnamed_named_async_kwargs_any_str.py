@@ -18,8 +18,9 @@ async def func(**kwargs: Any) -> str:
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
     result = await func(x=1, y=2)
+    assert isinstance(result, str)
     return f"parameter is {parameter}. result is {result}"
 
 
 if __name__ == "__main__":
-    asyncio.run(use_decoration("value"))
+    print(asyncio.run(use_decoration("value")))
