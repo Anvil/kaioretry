@@ -39,18 +39,22 @@ def parameters():
                 "params": data["params_format"].format(ptype=ptype)}
 
 
-def functions():
+def functions(input_data):
     """ Generate original function """
 
     function_template = """{async_kw}def func({params}) -> {return_type}:
     ''' ... '''
     return 'return_value'"""
 
+    if input_data["decorator_name"] == "aioretry":
+        variants = (("sync", ""), ("async", "async "))
+    else:
+        variants = (("sync", ""),)
 
     for return_type in {"Any", "str"}:
-        for ftype, async_kw in (("sync", ""), ("async", "async ")):
+        for ftype, async_kw in variants:
             for data in parameters():
-                yield data | {
+                yield data | input_data | {
                     "return_type": return_type.lower(),
                     "function_type": ftype,
                     "function": function_template.format(
@@ -61,16 +65,16 @@ DECORATOR_PARAMS = {"unnamed": "Exception, 2",
                     "named": "exceptions=Exception, tries=2"}
 
 MAIN_DECORATOR_TEMPLATES = {
-    "main_direct": """from kaioretry import aioretry
+    "main_direct": """from kaioretry import {decorator_name}
 
 
-@aioretry({dparams})
+@{decorator_name}({dparams})
 {function}
 """,
-    "main_by_call": """from kaioretry import aioretry
+    "main_by_call": """from kaioretry import {decorator_name}
 
 
-aioretry_decorator = aioretry({dparams})
+aioretry_decorator = {decorator_name}({dparams})
 
 
 {function}
@@ -85,7 +89,7 @@ BUILD_DECORATOR_TEMPLATES = {
 
 @Retry(
     exceptions=(ValueError, NotImplementedError),
-    context=Context(tries=5, delay=2)).aioretry
+    context=Context(tries=5, delay=2)).{decorator_name}
 {function}
 """,
     "built_by_call": """from kaioretry import Retry, Context
@@ -93,7 +97,7 @@ BUILD_DECORATOR_TEMPLATES = {
 
 aioretry_decorator = Retry(
     exceptions=(ValueError, NotImplementedError),
-    context=Context(tries=5, delay=2)).aioretry
+    context=Context(tries=5, delay=2)).{decorator_name}
 
 {function}
 func = aioretry_decorator(func)
@@ -101,10 +105,10 @@ func = aioretry_decorator(func)
 }
 
 
-def decorations() -> str:
+def decorations(input_data) -> str:
     """ Generate decorated functions """
-    for data in functions():
-        # use of kaioretry.aioretry
+    for data in functions(input_data):
+        # use of kaioretry.
         for dtype, decoration in MAIN_DECORATOR_TEMPLATES.items():
             for dparams_type, dparams in DECORATOR_PARAMS.items():
                 dtype = f"{dtype}_{dparams_type}"
@@ -117,7 +121,7 @@ def decorations() -> str:
                           "decoration": decoration.format(**data)}
 
 
-def programs() -> str:
+def programs(decorator_name) -> str:
 
     program_template = """'''Test {program_name} '''
 
@@ -131,7 +135,7 @@ from typing import Any
 
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
-    result = await func({call_params})
+    result = {await_kw}func({call_params})
     assert isinstance(result, str)
     return f"parameter is {{parameter}}. result is {{result}}"
 
@@ -147,23 +151,29 @@ reveal_type(func)
     else:
         reveal_type = ""
 
-    for data in decorations():
+    if decorator_name == "aioretry":
+        input_data = {"decorator_name": decorator_name, "await_kw": "await "}
+    else:
+        input_data = {"decorator_name": decorator_name, "await_kw": ""}
+
+    for data in decorations(input_data):
         data = data | {"program_name": program_name(data)}
         yield data | {"program": program_template.format(
             **data, reveal_type=reveal_type)}
 
 
 def program_name(data):
-    return ("aioretry_{decoration_type}_{function_type}_{signature}_"
+    return ("{decorator_name}_{decoration_type}_{function_type}_{signature}_"
             "{function_parameters_type}_{return_type}.py").format(**data)
 
 
 def generate_test_files(only=()):
-    for data in programs():
-        filename = os.path.join(OUTPUT_DIRECTORY, data["program_name"])
-        if not only or filename in only:
-            with open(filename, 'w') as file_:
-                file_.write(data["program"])
+    for decorator_name in ("aioretry", "retry"):
+        for data in programs(decorator_name):
+            filename = os.path.join(OUTPUT_DIRECTORY, data["program_name"])
+            if not only or filename in only:
+                with open(filename, 'w') as file_:
+                    file_.write(data["program"])
 
 
 if __name__ == "__main__":
