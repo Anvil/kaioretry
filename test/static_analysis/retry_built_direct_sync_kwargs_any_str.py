@@ -5,13 +5,12 @@
 
 import asyncio
 from typing import Any
+from collections.abc import Callable, Awaitable
+from mypy_extensions import VarArg, KwArg
+from kaioretry import retry, aioretry, Retry, Context
 
-from kaioretry import Retry, Context
 
-
-@Retry(
-    exceptions=(ValueError, NotImplementedError),
-    context=Context(tries=5, delay=2)).retry
+@Retry(exceptions=(ValueError, NotImplementedError), context=Context(tries=5, delay=2)).retry
 def func(**kwargs: Any) -> str:
     ''' ... '''
     return 'return_value'

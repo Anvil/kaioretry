@@ -2,40 +2,86 @@
 
 set -e
 
-failing_tests_branch=static-analysis-failures
+# Compute that *before* starting commiting things
+failing_tests_branch=$(git rev-parse --short HEAD)-static-analysis-failures
 
-declare -a failures=()
-declare -a success=()
+
+already_tracked() {
+    [[ $# -eq 1 ]] || return
+    local file=$1
+    git ls-files --error-unmatch "$file" >/dev/null 2>&1
+}
+
+commit_file() {
+    [[ $# -eq 2 ]] || return
+    local file=$1
+    local message=$2
+    git add "$file"
+    git commit -m "$message" >/dev/null
+}
+
+reveal_type() {
+    [[ $# -gt 0 ]] || return
+    local -a files=( "$@" )
+    REVEAL_TYPE=1 tools/generate-tests "${files[@]}"
+}
+
+declare -a failures=() success=() regressions=()
 
 for test in test/static_analysis/{aioretry,retry}*py; do
     if mypy "$test" >/dev/null 2>&1; then
 	printf '%s: success' "$test"
 	success+=("$test")
-	git add "$test"
-	if git commit -m "Add working $test file" >/dev/null; then
+	if already_tracked "$test"; then
+	    if commit_file "$test" "Update working $test test file"; then
+		printf ' (updated)'
+	    else
+		printf ' (unchanged)'
+	    fi
+	elif commit_file "$test" "Add newly-working $test test file"; then
 	    printf ' (NEW!)'
 	fi
 	printf \\n
     else
-	printf '%s: failed\n' "$test"
-	failures+=("$test")
+	printf '%s: failed' "$test"
+	if already_tracked "$test"; then
+	    printf ' (REGRESSION!)'
+	    regressions+=("$test")
+	else
+	    failures+=("$test")
+	fi
+	printf \\n
     fi
 done
 
-if [[ ${#failures[@]} -eq 0 ]]; then
-    echo "No failure detected"
-    exit
+if [[ ${#regressions[@]} -ne 0 ]]; then
+    printf '%d regressions detected\n' "${#regressions[@]}"
+    printf '* %s\n' "${regressions[@]}"
 fi
 
-current_branch=$(git branch --show-current)
+if [[ ${#failures[@]} -eq 0 ]]; then
+    echo "No new failure detected"
+else
+    printf '%d tess still failing:\n' "${#failures[@]}"
+    printf '* %s\n' "${failures[@]}"
+fi
 
 rm -f "${failures[@]}"
 
-git checkout "$failing_tests_branch"
+[[ -z $SAVE_FAILURES ]] && exit
+
+git checkout -- test/static_analysis/*
+
+current_branch=$(git branch --show-current)
+
+git checkout -b "$failing_tests_branch"
 git rebase "$current_branch"
 
-REVEAL_TYPES=1 tools/generate-tests "${failures[@]}"
+reveal_type "${failures[@]}"
 git add "${failures[@]}"
 git commit -m "add currently-failing static analysis test files"
 
 git checkout -
+if [[ ${#regressions[@]} -ne 0 ]]; then
+    reveal_type "${regressions[@]}"
+fi
