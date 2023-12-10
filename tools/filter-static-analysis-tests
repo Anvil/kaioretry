@@ -4,8 +4,7 @@ set -e
 
 failing_tests_branch=static-analysis-failures
 
-declare -a failures=()
-declare -a success=()
+declare -a failures=() success=() regressions=()
 
 for test in test/static_analysis/{aioretry,retry}*py; do
     if mypy "$test" >/dev/null 2>&1; then
@@ -17,8 +16,14 @@ for test in test/static_analysis/{aioretry,retry}*py; do
 	fi
 	printf \\n
     else
-	printf '%s: failed\n' "$test"
-	failures+=("$test")
+	print '%s: failed' "$test"
+	if git ls-files --error-unmatched "$test" >/dev/null 2>&1; then
+	    printf ' (REGRESSION!)'
+	    regressions+=("$test")
+	else
+	    failures+=("$test")
+	fi
+	printf \\n
     fi
 done
 
@@ -27,9 +32,14 @@ if [[ ${#failures[@]} -eq 0 ]]; then
     exit
 fi
 
-current_branch=$(git branch --show-current)
+printf 'Still failing tests:\n'
+printf '* %s\n' "${failures[@]}"
 
 rm -f "${failures[@]}"
+
+[[ -z $SAVE_FAILURE ]] && exit
+
+current_branch=$(git branch --show-current)
 
 git checkout "$failing_tests_branch"
 git rebase "$current_branch"
