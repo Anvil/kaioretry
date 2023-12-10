@@ -8,13 +8,19 @@
 ### New
 
 ### Changes
-* use generated static analysis test files instead of the few manually written
-  ones. 184/217 of them are currently passing.
-* rely on functools.wraps to avoid too much internal code
 
 ### Fixes
 
 ### Breaks
+
+
+## 0.12.1 - (2023-12-10)
+---
+
+### Changes
+* use generated static analysis test files instead of the few manually written
+  ones. 184/217 of them are currently passing.
+* rely on functools.wraps to avoid too much internal code
 
 
 ## 0.12.0 - (2023-12-03)
