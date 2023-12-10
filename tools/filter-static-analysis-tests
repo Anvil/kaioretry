@@ -4,20 +4,40 @@ set -e
 
 failing_tests_branch=static-analysis-failures
 
+already_tracked() {
+    [[ $# -eq 1 ]] || return
+    local file=$1
+    git ls-files --error-unmatch "$file" >/dev/null 2>&1
+}
+
+commit_file() {
+    [[ $# -eq 2 ]] || return
+    local file=$1
+    local message=$2
+    git add "$file"
+    git commit -m "$message" >/dev/null
+}
+
+
 declare -a failures=() success=() regressions=()
 
 for test in test/static_analysis/{aioretry,retry}*py; do
     if mypy "$test" >/dev/null 2>&1; then
 	printf '%s: success' "$test"
 	success+=("$test")
-	git add "$test"
-	if git commit -m "Add working $test file" >/dev/null; then
+	if already_tracked "$test"; then
+	    if commit_file "$test" "Update working $test test file"; then
+		printf ' (updated)'
+	    else
+		printf ' (unchanged)'
+	    fi
+	elif commit_file "$test" "Add newly-working $test test file"; then
 	    printf ' (NEW!)'
 	fi
 	printf \\n
     else
-	print '%s: failed' "$test"
-	if git ls-files --error-unmatched "$test" >/dev/null 2>&1; then
+	printf '%s: failed' "$test"
+	if already_tracked "$test"; then
 	    printf ' (REGRESSION!)'
 	    regressions+=("$test")
 	else
@@ -27,12 +47,17 @@ for test in test/static_analysis/{aioretry,retry}*py; do
     fi
 done
 
+if [[ ${#regressions[@]} -ne 0 ]]; then
+    printf '%d regressions detected\n' "${#regressions[@]}"
+    printf '* %s\n' "${regressions[@]}"
+fi
+
 if [[ ${#failures[@]} -eq 0 ]]; then
-    echo "No failure detected"
+    echo "No new failure detected"
     exit
 fi
 
-printf 'Still failing tests:\n'
+printf '%d tess still failing:\n' "${#failures[@]}"
 printf '* %s\n' "${failures[@]}"
 
 rm -f "${failures[@]}"
