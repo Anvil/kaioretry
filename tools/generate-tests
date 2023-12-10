@@ -52,8 +52,18 @@ class Function:
     ''' ... '''
     return 'return_value'"""
 
-    def type(self):
-        return f"Callable[..., {self.signature.return_type}]"
+    def type_hint(self, force_coro=False):
+        if self.signature.params_style == "param":
+            params = f"[{", ".join(self.signature.params_type for _ in range(self.signature.params_format.count(":")))}]"
+        elif self.signature.params_style == "kwargs":
+            params = f"[KwArg({self.signature.params_type})]"
+        else:
+            params = f"[VarArg({self.signature.params_type})]"
+        if self.coroutine or force_coro:
+            rtype = f"Awaitable[{self.signature.return_type}]"
+        else:
+            rtype = f"{self.signature.return_type}"
+        return f"Callable[{params}, {rtype}]"
 
     @property
     def test_name(self):
@@ -137,9 +147,10 @@ class Decoration:
             return f"""@{self.build}
 {self.function}"""
         else:
+            type_hint = self.function.type_hint(self.decorator_name == "aioretry")
             return f"""{self.function}
 
-{self.decoration} = {self.build}({self.function.name})"""
+{self.decoration}: {type_hint} = {self.build}({self.function.name})"""
         
 
 def decorations(input_data) -> str:
@@ -185,7 +196,8 @@ reveal_type(func)
 
 import asyncio
 from typing import Any
-
+from collections.abc import Callable, Awaitable
+from mypy_extensions import VarArg, KwArg
 from kaioretry import retry, aioretry, Retry, Context
 
 
