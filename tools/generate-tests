@@ -12,6 +12,7 @@ Some work, some don't. And when they don't, the reason is often unknown:
 
 import os
 import sys
+from dataclasses import dataclass
 
 
 # The repository subdirectory the tests are written in
@@ -20,109 +21,164 @@ OUTPUT_DIRECTORY = "test/static_analysis"
 # Define if types of the decorated function should be revealed or not
 REVEAL_TYPE = int(os.getenv("REVEAL_TYPE", "0"))
 
+@dataclass
+class FunctionSignature:
+    params_style: str
+    params_format: str
+    params_type: str
+    call_params: str
+    return_type: str
 
-def parameters():
-    """ Generate parameter signature part """
+    def params(self) -> str:
+        return self.params_format.format(ptype=self.params_type)
 
-    for ptype in {"int", "Any"}:
-        for data in ({"signature": "args",
-                      "params_format": "*args: {ptype}",
-                      "call_params": "1, 2"},
-                     {"signature": "param",
-                      "params_format": "x: {ptype}, y: {ptype}",
-                      "call_params": "1, 2"},
-                     {"signature": "kwargs",
-                      "params_format": "**kwargs: {ptype}",
-                      "call_params": "x=1, y=2"}):
-            yield data | {
-                "function_parameters_type": ptype.lower(),
-                "params": data["params_format"].format(ptype=ptype)}
+    @property
+    def test_name(self) -> str:
+        return "_".join([self.params_style, self.params_type.lower(), self.return_type.lower()])
+
+
+@dataclass
+class Function:
+    name: str
+    signature: FunctionSignature
+    coroutine: bool
+    
+    def __str__(self) -> str:
+        if self.coroutine:
+            async_kw = "async "
+        else:
+            async_kw = ""
+        return f"""{async_kw}def {self.name}({self.signature.params()}) -> {self.signature.return_type}:
+    ''' ... '''
+    return 'return_value'"""
+
+    def type(self):
+        return f"Callable[..., {self.signature.return_type}]"
+
+    @property
+    def test_name(self):
+        """Return the part of the test file name that matches this Funcion"""
+        return "_".join(["async" if self.coroutine else "sync", self.signature.test_name])
+
+
+def signatures():
+    """ Generate function combinations """
+    for return_type in {"Any", "str"}:
+        for ptype in {"int", "Any"}:
+            for params_style, params_format, call_params in (
+                    ("args", "*args: {ptype}", "1, 2"),
+                    ("param", "x: {ptype}, y: {ptype}", "1, 2"),
+                    ("kwargs", "**kwargs: {ptype}", "x=1, y=2")):
+                yield FunctionSignature(
+                    params_style, params_format, ptype, call_params, return_type)
 
 
 def functions(input_data):
     """ Generate original function """
 
-    function_template = """{async_kw}def func({params}) -> {return_type}:
-    ''' ... '''
-    return 'return_value'"""
-
     if input_data["decorator_name"] == "aioretry":
-        variants = (("sync", ""), ("async", "async "))
+        ftypes = (True, False)
     else:
-        variants = (("sync", ""),)
+        ftypes = (False,)
 
-    for return_type in {"Any", "str"}:
-        for ftype, async_kw in variants:
-            for data in parameters():
-                yield data | input_data | {
-                    "return_type": return_type.lower(),
-                    "function_type": ftype,
-                    "function": function_template.format(
-                        return_type=return_type, async_kw=async_kw, **data)}
+    for coroutine in ftypes:
+        for signature in signatures():
+            yield Function("func", signature, coroutine)
+            """
+            yield data | input_data | {
+                "return_type": return_type.lower(),
+                "function_type": ftype,
+                "function": function_template.format(
+                    return_type=return_type, async_kw=async_kw, **data)}
+            """
 
+
+
+@dataclass
+class Decoration:
+    decorator_name: str
+    build: str
+    function: Function
+    used_as_decorator: bool
+    build_first: bool
+
+    @property
+    def decoration(self) -> str:
+        if self.used_as_decorator:
+            return self.function.name
+        return "wrapped"
+
+    @property
+    def call(self) -> str:
+        if self.decorator_name == "aioretry":
+            await_kw = "await "
+        else:
+            await_kw= ""
+        return f"{await_kw}{self.decoration}({self.function.signature.call_params})"
+
+    @property
+    def test_name(self) -> str:
+        """Return the name of the test"""
+        if any(self.build.startswith(dec) for dec in ("retry", "aioretry")):
+            build_type = "main"
+            if "=" in self.build:
+                extra = ("named", )
+            else:
+                extra = ("unnamed", )
+        else:
+            build_type = "built"
+            extra = ()
+        return "_".join([self.decorator_name, build_type,
+                         "direct" if self.used_as_decorator else "by_call",
+                         *extra, self.function.test_name])
+
+    def __str__(self) -> str:
+        if self.used_as_decorator:
+            return f"""@{self.build}
+{self.function}"""
+        else:
+            return f"""{self.function}
+
+{self.decoration} = {self.build}({self.function.name})"""
+        
 
 def decorations(input_data) -> str:
     """ Generate decorated functions """
 
-    decorator_params = (("unnamed", "Exception, 2"),
-                        ("named", "exceptions=Exception, tries=2"))
+    decorators = (
+        "Retry(exceptions=(ValueError, NotImplementedError), "
+        "context=Context(tries=5, delay=2)).{decorator_name}",
+        '{decorator_name}(Exception, 2)',
+        '{decorator_name}(exceptions=Exception, tries=2)')
 
-    main_decorator_templates = (
-        ("main_direct", "func", """from kaioretry import {decorator_name}
-
-
-@{decorator_name}({dparams})
-{function}
-"""),
-        ("main_by_call", "wrapped", """from kaioretry import {decorator_name}
-
-
-aioretry_decorator = {decorator_name}({dparams})
-
-
-{function}
-wrapped = aioretry_decorator(func)
-"""))
-
-    build_decorator_templates = (
-        ("built_direct", "func", """from kaioretry import Retry, Context
+    for function in functions(input_data):
+        for build in decorators:
+            for used_as_decorator in (True, False):
+                for build_first in (True, False):
+                    yield Decoration(
+                        input_data["decorator_name"], build.format(**input_data), function,
+                        used_as_decorator, build_first)
 
 
-@Retry(exceptions=(ValueError, NotImplementedError),
-       context=Context(tries=5, delay=2)).{decorator_name}
-{function}
-"""),
-        ("built_by_call", "wrapped", """from kaioretry import Retry, Context
+@dataclass
+class TestFile:
+    decoration: Decoration
 
+    @property
+    def name(self) -> str:
+        return f"{self.decoration.test_name}.py"
 
-aioretry_decorator = Retry(
-    exceptions=(ValueError, NotImplementedError),
-    context=Context(tries=5, delay=2)).{decorator_name}
+    @property
+    def reveal_type(self) -> str:
+        if REVEAL_TYPE:
+            return """
+from typing_extensions import reveal_type
+reveal_type(func)
+            """
+        return ""
 
-{function}
-wrapped = aioretry_decorator(func)
-"""))
-
-    for data in functions(input_data):
-        # use of kaioretry.<decorator>xs
-        for dtype, wrapped, decoration in main_decorator_templates:
-            for dparams_type, dparams in decorator_params:
-                dtype = f"{dtype}_{dparams_type}"
-                yield data | {"decoration_type": dtype,
-                              "wrapped": wrapped,
-                              "decoration": decoration.format(
-                                  dparams=dparams, **data)}
-
-        # Recreation of the decorator
-        for dtype, wrapped, decoration in build_decorator_templates:
-            yield data | {"decoration_type": dtype,
-                          "wrapped": wrapped,
-                          "decoration": decoration.format(**data)}
-
-
-def programs(decorator_name) -> str:
-
-    program_template = """'''Test {program_name} '''
+    def __str__(self) -> str:
+        return f"""'''Test {self.name} '''
 
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
@@ -130,11 +186,15 @@ def programs(decorator_name) -> str:
 import asyncio
 from typing import Any
 
-{decoration}{reveal_type}
+from kaioretry import retry, aioretry, Retry, Context
+
+
+{self.decoration}{self.reveal_type}
+
 
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
-    result = {await_kw }{wrapped}({call_params})
+    result = {self.decoration.call}
     assert isinstance(result, str)
     return f"parameter is {{parameter}}. result is {{result}}"
 
@@ -143,36 +203,25 @@ if __name__ == "__main__":
     print(asyncio.run(use_decoration("value")))
 """
 
-    if REVEAL_TYPE:
-        reveal_type = """from typing_extensions import reveal_type
-reveal_type(func)
-"""
-    else:
-        reveal_type = ""
+
+def programs(decorator_name) -> str:
 
     if decorator_name == "aioretry":
-        input_data = {"decorator_name": decorator_name, "await_kw": "await "}
+        input_data = {"decorator_name": decorator_name}
     else:
-        input_data = {"decorator_name": decorator_name, "await_kw": ""}
+        input_data = {"decorator_name": decorator_name}
 
-    for data in decorations(input_data):
-        data = data | {"program_name": program_name(data)}
-        yield data | {"program": program_template.format(
-            **data, reveal_type=reveal_type)}
+    for decoration in decorations(input_data):
+        yield TestFile(decoration)
 
-
-def program_name(data):
-    return ("{decorator_name}_{decoration_type}_{function_type}_{signature}_"
-            "{function_parameters_type}_{return_type}.py").format(**data)
-
-
+        
 def generate_test_files(only=()):
     for decorator_name in ("aioretry", "retry"):
-        for data in programs(decorator_name):
-            filename = os.path.join(OUTPUT_DIRECTORY, data["program_name"])
+        for program in programs(decorator_name):
+            filename = os.path.join(OUTPUT_DIRECTORY, program.name)
             if not only or filename in only:
                 with open(filename, 'w') as file_:
-                    file_.write(data["program"])
+                    file_.write(str(program))
 
 
 if __name__ == "__main__":
