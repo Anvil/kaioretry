@@ -5,13 +5,12 @@
 
 import asyncio
 from typing import Any
+from collections.abc import Callable, Awaitable
+from mypy_extensions import VarArg, KwArg
+from kaioretry import retry, aioretry, Retry, Context
 
-from kaioretry import Retry, Context
 
-
-@Retry(
-    exceptions=(ValueError, NotImplementedError),
-    context=Context(tries=5, delay=2)).aioretry
+@Retry(exceptions=(ValueError, NotImplementedError), context=Context(tries=5, delay=2)).aioretry
 async def func(x: int, y: int) -> str:
     ''' ... '''
     return 'return_value'

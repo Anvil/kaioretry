@@ -5,8 +5,9 @@
 
 import asyncio
 from typing import Any
-
-from kaioretry import retry
+from collections.abc import Callable, Awaitable
+from mypy_extensions import VarArg, KwArg
+from kaioretry import retry, aioretry, Retry, Context
 
 
 @retry(Exception, 2)

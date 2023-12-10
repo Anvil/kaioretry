@@ -5,22 +5,21 @@
 
 import asyncio
 from typing import Any
-
-from kaioretry import aioretry
-
-
-aioretry_decorator = aioretry(Exception, 2)
+from collections.abc import Callable, Awaitable
+from mypy_extensions import VarArg, KwArg
+from kaioretry import retry, aioretry, Retry, Context
 
 
 def func(x: int, y: int) -> Any:
     ''' ... '''
     return 'return_value'
-func = aioretry_decorator(func)
+
+wrapped: Callable[[int, int], Awaitable[Any]] = aioretry(Exception, 2)(func)
 
 
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
-    result = await func(1, 2)
+    result = await wrapped(1, 2)
     assert isinstance(result, str)
     return f"parameter is {parameter}. result is {result}"
 
