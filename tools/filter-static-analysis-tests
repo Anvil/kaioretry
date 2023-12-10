@@ -2,7 +2,9 @@
 
 set -e
 
-failing_tests_branch=static-analysis-failures
+# Compute that *before* starting commiting things
+failing_tests_branch=$(git rev-parse --short HEAD)-static-analysis-failures
+
 
 already_tracked() {
     [[ $# -eq 1 ]] || return
@@ -18,6 +20,11 @@ commit_file() {
     git commit -m "$message" >/dev/null
 }
 
+reveal_type() {
+    [[ $# -gt 0 ]] || return
+    local -a files=( "$@" )
+    REVEAL_TYPE=1 tools/generate-tests "${files[@]}"
+}
 
 declare -a failures=() success=() regressions=()
 
@@ -54,23 +61,27 @@ fi
 
 if [[ ${#failures[@]} -eq 0 ]]; then
     echo "No new failure detected"
-    exit
+else
+    printf '%d tess still failing:\n' "${#failures[@]}"
+    printf '* %s\n' "${failures[@]}"
 fi
-
-printf '%d tess still failing:\n' "${#failures[@]}"
-printf '* %s\n' "${failures[@]}"
 
 rm -f "${failures[@]}"
 
-[[ -z $SAVE_FAILURE ]] && exit
+[[ -z $SAVE_FAILURES ]] && exit
+
+git checkout -- test/static_analysis/*
 
 current_branch=$(git branch --show-current)
 
-git checkout "$failing_tests_branch"
+git checkout -b "$failing_tests_branch"
 git rebase "$current_branch"
 
-REVEAL_TYPES=1 tools/generate-tests "${failures[@]}"
+reveal_type "${failures[@]}"
 git add "${failures[@]}"
 git commit -m "add currently-failing static analysis test files"
 
 git checkout -
+if [[ ${#regressions[@]} -ne 0 ]]; then
+    reveal_type "${regressions[@]}"
+fi
