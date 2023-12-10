@@ -6,10 +6,10 @@
 ---
 
 ### New
-* add 115 new working static analysis tests cases
 
 ### Changes
-* use generated retry decorator test files
+* use generated static analysis test files instead of the few manually written
+  ones. 184/217 of them are currently passing.
 * rely on functools.wraps to avoid too much internal code
 
 ### Fixes
