@@ -80,7 +80,8 @@ import logging
 import functools
 
 from collections.abc import Callable, Awaitable
-from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, overload
+from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, \
+    overload, TypeGuard
 
 from .types import Exceptions, ExceptionList, FuncParam, \
     FuncRetVal, Function, AioretryCoro, AwaitableFunc, AnyFunction
@@ -296,7 +297,8 @@ class Retry:
         return not cls.__is_not_async_type({rtype, origin})
 
     @classmethod
-    def is_func_async(cls, func: Function) -> bool:
+    def is_func_async(cls, func: Callable[FuncParam, Any]) \
+            -> TypeGuard[AwaitableFunc[FuncParam, Any]]:
         """Tell if a function can be considered async, either because it's a
         :py:class:`~collections.abc.Coroutine`, an
         :py:class:`~collections.abc.AsyncGenerator` or because it is annotated

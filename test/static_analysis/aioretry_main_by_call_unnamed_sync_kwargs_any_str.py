@@ -1,4 +1,4 @@
-'''Test aioretry_main_direct_unnamed_async_param_any_any.py '''
+'''Test aioretry_main_by_call_unnamed_sync_kwargs_any_str.py '''
 
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
@@ -10,15 +10,16 @@ from mypy_extensions import VarArg, KwArg
 from kaioretry import retry, aioretry, Retry, Context
 
 
-@aioretry(Exception, 2)
-async def func(x: Any, y: Any) -> Any:
+def func(**kwargs: Any) -> str:
     ''' ... '''
     return 'return_value'
+
+wrapped: Callable[[KwArg(Any)], Awaitable[str]] = aioretry(Exception, 2)(func)
 
 
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
-    result = await func(1, 2)
+    result = await wrapped(x=1, y=2)
     assert isinstance(result, str)
     return f"parameter is {parameter}. result is {result}"
 

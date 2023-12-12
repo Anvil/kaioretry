@@ -185,7 +185,7 @@ class TestFile:
             return """
 from typing_extensions import reveal_type
 reveal_type(func)
-            """
+"""
         return ""
 
     def __str__(self) -> str:

@@ -1,4 +1,4 @@
-'''Test aioretry_main_direct_named_async_args_int_any.py '''
+'''Test aioretry_main_direct_unnamed_sync_param_int_str.py '''
 
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
@@ -10,8 +10,8 @@ from mypy_extensions import VarArg, KwArg
 from kaioretry import retry, aioretry, Retry, Context
 
 
-@aioretry(exceptions=Exception, tries=2)
-async def func(*args: int) -> Any:
+@aioretry(Exception, 2)
+def func(x: int, y: int) -> str:
     ''' ... '''
     return 'return_value'
 
