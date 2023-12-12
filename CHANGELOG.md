@@ -11,6 +11,8 @@
 
 ### Fixes
 * finally fixed kaioretry._make_decorator type hinting issue
+* remove trailing spaces in generated static-analysis files in the reveal_type
+  code block
 
 ### Breaks
 
