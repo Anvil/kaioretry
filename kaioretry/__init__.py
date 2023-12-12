@@ -55,7 +55,7 @@ RETRY_PARAMS_DOCSTRING = """
 """
 
 
-def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
+def _make_decorator(func: Callable[[Retry], FuncRetVal]) \
     -> Callable[[
         DefaultArg(Exceptions, 'exceptions'),  # noqa: F821
         DefaultArg(int, 'tries'),              # noqa: F821
@@ -65,7 +65,7 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
         DefaultNamedArg(NonNegative | None, 'max_delay'),  # noqa: F821
         DefaultNamedArg(NonNegative, 'min_delay'),  # noqa: F821
         DefaultNamedArg(logging.Logger, 'logger')],  # noqa: F821
-                Callable[FuncParam, FuncRetVal]]:
+                FuncRetVal]:
     """Create a function that will accept a bunch of parameters and
     create the matching :py:class:`Retry` and :py:class:`Context`
     objects, in order to be compatible with the origin retry module.
@@ -88,7 +88,7 @@ def _make_decorator(func: Callable[[Retry], Callable[FuncParam, FuncRetVal]]) \
             jitter: Jitter = 0,  max_delay: NonNegative | None = None,
             min_delay: NonNegative = 0,
             logger: logging.Logger = Retry.DEFAULT_LOGGER) \
-            -> Callable[FuncParam, FuncRetVal]:
+            -> FuncRetVal:
 
         if isinstance(jitter, (int, float)):
             jitter_f = cast(UpdateDelayFunc, jitter.__add__)

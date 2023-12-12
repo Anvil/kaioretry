@@ -10,6 +10,7 @@
 ### Changes
 
 ### Fixes
+* finally fixed kaioretry._make_decorator type hinting issue
 
 ### Breaks
 
