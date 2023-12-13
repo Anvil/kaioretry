@@ -10,10 +10,16 @@
 ### Changes
 
 ### Fixes
-* fix the reveal_type statement bloc in generated static-analysis test files
-  and also reveal both function and decoration when possible
 
 ### Breaks
+
+
+## 0.12.3 - (2023-12-13)
+---
+
+### Fixes
+* fix the reveal_type statement bloc in generated static-analysis test files
+  and also reveal both function and decoration when possible
 
 
 ## 0.12.2 - (2023-12-13)
