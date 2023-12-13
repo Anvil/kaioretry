@@ -167,7 +167,8 @@ def decorations(input_data) -> str:
             for used_as_decorator in (True, False):
                 for build_first in (True, False):
                     yield Decoration(
-                        input_data["decorator_name"], build.format(**input_data), function,
+                        input_data["decorator_name"],
+                        build.format(**input_data), function,
                         used_as_decorator, build_first)
 
 
@@ -182,9 +183,12 @@ class TestFile:
     @property
     def reveal_type(self) -> str:
         if REVEAL_TYPE:
-            return """
-from typing_extensions import reveal_type
-reveal_type(func)"""
+            functions = [self.decoration.function.name]
+            if self.decoration.function.name != self.decoration.decoration:
+                functions.append(self.decoration.decoration)
+            return "\n".join([
+                "", "", "from typing_extensions import reveal_type",
+                *[f"reveal_type({func})" for func in functions], ""])
         return ""
 
     def __str__(self) -> str:
@@ -200,8 +204,8 @@ from mypy_extensions import VarArg, KwArg
 from kaioretry import retry, aioretry, Retry, Context
 
 
-{self.decoration}{self.reveal_type}
-
+{self.decoration}
+{self.reveal_type}
 
 async def use_decoration(parameter: str) -> str:
     ''' obtain result and use it '''
