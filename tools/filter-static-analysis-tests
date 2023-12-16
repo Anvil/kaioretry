@@ -28,6 +28,8 @@ reveal_type() {
 
 declare -a failures=() success=() regressions=()
 
+[[ -z NO_GENERATE ]] || tools/generate-tests
+
 for test in test/static_analysis/{aioretry,retry}*py; do
     if mypy "$test" >/dev/null 2>&1; then
 	printf '%s: success' "$test"
