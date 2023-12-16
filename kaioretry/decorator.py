@@ -81,7 +81,7 @@ import functools
 
 from collections.abc import Callable, Awaitable
 from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, \
-    overload, TypeGuard
+    overload, TypeGuard, Final
 
 from .types import Exceptions, ExceptionList, FuncParam, \
     FuncRetVal, Function, AioretryCoro, AwaitableFunc, AnyFunction
@@ -122,12 +122,12 @@ class Retry:
 
     """
 
-    DEFAULT_LOGGER: logging.Logger = logging.getLogger(__name__)
+    DEFAULT_LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
     """The :py:class:`logging.Logger` object that will be used if none
     are provided to the constructor.
     """
 
-    DEFAULT_CONTEXT: Context = Context(tries=-1, delay=0)
+    DEFAULT_CONTEXT: Final[Context] = Context(tries=-1, delay=0)
     """A default :py:class:`~kaioretry.context.Context` that will be
     used if none are provided to the constructor.
 
