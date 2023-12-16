@@ -7,6 +7,7 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 
 import kaioretry
+from kaioretry.types import FuncRetVal
 
 
 @pytest.mark.parametrize("func", (kaioretry.retry, kaioretry.aioretry))
@@ -20,7 +21,11 @@ def randint():
     return random.randint(1, 10000)
 
 
-@pytest.mark.parametrize("attribute", ("retry", "aioretry"))
+for_each_module_attribute = pytest.mark.parametrize(
+    "attribute", ("retry", "aioretry"))
+
+
+@for_each_module_attribute
 def test_retry(exception, mocker, attribute):
     """Test kaioretry.retry/aioretry delegation-to-Retry process"""
     retry_cls = mocker.patch("kaioretry.Retry", spec=kaioretry.Retry)
@@ -48,7 +53,7 @@ def test_retry(exception, mocker, attribute):
     assert result == getattr(retry_cls.return_value, attribute)
 
 
-@pytest.mark.parametrize("attribute", ("retry", "aioretry"))
+@for_each_module_attribute
 @pytest.mark.parametrize(
     "jitter, expectation",
     ((1, does_not_raise()),
@@ -59,3 +64,16 @@ def test_retry_jitter_values(exception, attribute, jitter, expectation):
     func = getattr(kaioretry, attribute)
     with expectation:
         func(exception, jitter=jitter)
+
+
+@for_each_module_attribute
+def test_metadata(attribute):
+    """Test that retry and aioretry have the correct metadata. They are
+    decorated by kaioretry._make_decorator and we want to be sure that
+    documentation will be correctly generated.
+    """
+    func = getattr(kaioretry, attribute)
+    assert func.__name__ == attribute
+    assert func.__qualname__ == attribute
+    assert 'retry_obj' not in func.__annotations__
+    assert func.__annotations__['return'] != FuncRetVal
