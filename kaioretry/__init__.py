@@ -2,7 +2,6 @@
 
 import logging
 import random
-import functools
 
 from typing import cast
 from collections.abc import Callable
@@ -80,8 +79,8 @@ def _make_decorator(func: Callable[[Retry], FuncRetVal]) \
         union-set of Retry and Context constructors.
 
     """
+
     # pylint: disable=too-many-arguments
-    @functools.wraps(func)
     def decoration(
             exceptions: Exceptions = Exception, tries: int = -1, *,
             delay: NonNegative = 0, backoff: Number = 1,
@@ -108,6 +107,13 @@ def _make_decorator(func: Callable[[Retry], FuncRetVal]) \
         retry_obj = Retry(
             exceptions=exceptions, context=context, logger=logger)
         return func(retry_obj)
+
+    # No need to override module
+    decoration.__name__ = func.__name__
+    decoration.__qualname__ = func.__qualname__
+
+    # Override return value annotation but not parameters.
+    decoration.__annotations__['return'] = func.__annotations__['return']
 
     if func.__doc__ is not None:  # pragma: nocover
         decoration.__doc__ = func.__doc__.replace(
