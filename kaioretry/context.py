@@ -93,7 +93,7 @@ import asyncio
 import logging
 import uuid
 
-from typing import cast, Awaitable, Any, TypeVar, Generic
+from typing import cast, Awaitable, Any, TypeVar, Generic, Final
 from collections.abc import Callable, Generator, AsyncGenerator
 
 from .types import NonNegative, Number, UpdateDelayFunc
@@ -180,7 +180,7 @@ class Context:
 
     """
 
-    DEFAULT_LOGGER: logging.Logger = logging.getLogger(__name__)
+    DEFAULT_LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
     """The :py:class:`logging.Logger` object that will be used if none
     are provided to the constructor.
     """

@@ -8,6 +8,7 @@
 ### New
 
 ### Changes
+* Annotate class attributes as Final
 
 ### Fixes
 
