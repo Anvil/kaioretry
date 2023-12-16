@@ -8,12 +8,20 @@
 ### New
 
 ### Changes
+
+### Fixes
+
+### Breaks
+
+
+## 1.0.0 - (2023-12-16)
+---
+
+### Changes
 * Annotate class attributes as Final
 
 ### Fixes
 * fix kaioretry.{retry,aioretry} metadata and related sphinx documentation
-
-### Breaks
 
 
 ## 0.12.3 - (2023-12-13)
