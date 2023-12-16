@@ -14,3 +14,10 @@ The :py:class:`kaioretry.Context` class
 
 .. automodule:: kaioretry.context
    :members:
+
+
+Misc Types
+----------
+
+.. automodule:: kaioretry.types
+   :members:

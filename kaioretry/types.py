@@ -1,6 +1,4 @@
-"""
-Kaioretry defines a bunch
-"""
+"""Kaioretry helper types"""
 
 
 from typing import TypeAlias, TypeVar, ParamSpec, Any, overload
@@ -79,4 +77,3 @@ class AioretryProtocol(Protocol):
             * If ``func`` does not, then return a same-signature *coroutine* function
               that, once awaited, return ``func`` original return value.
         """
-        ...
