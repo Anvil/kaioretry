@@ -104,7 +104,8 @@ function:
 
 If the original function is fully annotated as non-`Any`, the resulting
 decorated function annotations should be correctly inferred (according to
-[kaioretry test](/Anvil/kaioretry/main/test/static_analysis)).
+[kaioretry
+test](https://github.com/Anvil/kaioretry/tree/main/test/static_analysis)).
 
 It is unclear to me right now, if the `kaioretry.aioretry` function type hints
 are incorrect or if it is an issue with either mypy or cpython. Or both. Or
