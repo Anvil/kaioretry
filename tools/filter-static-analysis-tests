@@ -70,7 +70,7 @@ rm -f "${failures[@]}"
 
 [[ -z $SAVE_FAILURES ]] && exit
 
-git checkout -- test/static_analysis/*
+git checkout -- test/static_analysis/*.py
 
 current_branch=$(git branch --show-current)
 
