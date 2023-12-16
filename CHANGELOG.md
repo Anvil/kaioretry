@@ -11,6 +11,7 @@
 * Annotate class attributes as Final
 
 ### Fixes
+* fix kaioretry.{retry,aioretry} metadata and related sphinx documentation
 
 ### Breaks
 
