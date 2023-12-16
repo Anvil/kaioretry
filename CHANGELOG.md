@@ -8,8 +8,10 @@
 ### New
 
 ### Changes
+* update AioretryProtocol documentation
 
 ### Fixes
+* minor documentation improvements
 
 ### Breaks
 
