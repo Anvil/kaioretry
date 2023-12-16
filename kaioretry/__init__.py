@@ -3,7 +3,7 @@
 import logging
 import random
 
-from typing import cast
+from typing import cast, Final
 from collections.abc import Callable
 from mypy_extensions import DefaultNamedArg, DefaultArg
 
@@ -16,7 +16,7 @@ from .decorator import Retry
 __version__ = "1.0.0"
 
 
-RETRY_PARAMS_DOCSTRING = """
+RETRY_PARAMS_DOCSTRING: Final[str] = """
     :param exceptions: exceptions classes that will trigger another
         try. Other exceptions raised by the decorated function will
         not trigger a retry. The value of the exceptions parameters
