@@ -8,12 +8,20 @@
 ### New
 
 ### Changes
+
+### Fixes
+
+### Breaks
+
+
+## 1.0.1 - (2023-12-17)
+---
+
+### Changes
 * update AioretryProtocol documentation
 
 ### Fixes
 * minor documentation improvements
-
-### Breaks
 
 
 ## 1.0.0 - (2023-12-16)
