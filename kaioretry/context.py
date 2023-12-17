@@ -178,6 +178,9 @@ class Context:
 
     :raises ValueError: if tries, min_delay or max_delay have incorrect values.
 
+    .. automethod:: __iter__
+    .. automethod:: __aiter__
+
     """
 
     DEFAULT_LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
@@ -231,10 +234,20 @@ class Context:
             self.__update_delay, self.__logger))
 
     def __iter__(self) -> Generator[None, None, None]:
+        """Returns a generator that perform sleep (using regular
+        :py:func:`time.sleep`) between iterations in order to induce delay as
+        instructed.
+
+        """
         yield
         yield from self.__make_iterator(time.sleep)
 
     async def __aiter__(self) -> AsyncGenerator[None, None]:
+        """Returns a asynchronous generator that perform sleep through
+        :py:func:`asyncio.sleep` between iterations in order to induce delay
+        as instructed.
+
+        """
         yield
         for sleep in self.__make_iterator(asyncio.sleep):
             await sleep
