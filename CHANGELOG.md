@@ -10,6 +10,7 @@
 ### Changes
 
 ### Fixes
+* minor improvement to log messages
 * improve flake8 of source and tests
 
 ### Breaks

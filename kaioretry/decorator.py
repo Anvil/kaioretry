@@ -154,16 +154,16 @@ class Retry:
 
     def __caught_error(self, func: Function, error: BaseException) -> None:
         self.__log(
-            logging.WARN, "%s caught while running %s: %s.",
-            error.__class__.__name__, func.__name__, error)
+            logging.WARN, "%s caught while running %s: %s",
+            error.__class__.__qualname__, func.__qualname__, error)
 
     def __final_error(self, func: Function, error: BaseException) -> NoReturn:
-        self.__log(logging.WARN, "%s failed to complete", func.__name__)
+        self.__log(logging.WARN, "%s failed to complete", func.__qualname__)
         raise error
 
     def __success(self, func: Function) -> None:
         self.__log(
-            logging.INFO, "%s has succesfully completed", func.__name__)
+            logging.INFO, "%s has succesfully completed", func.__qualname__)
 
     @staticmethod
     def __fix_decoration(original: Callable[..., Any],
