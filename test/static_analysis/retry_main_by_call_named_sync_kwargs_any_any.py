@@ -1,5 +1,6 @@
 '''Test retry_main_by_call_named_sync_kwargs_any_any.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 
@@ -13,6 +14,7 @@ from kaioretry import retry, aioretry, Retry, Context
 def func(**kwargs: Any) -> Any:
     ''' ... '''
     return 'return_value'
+
 
 wrapped: Callable[[KwArg(Any)], Any] = retry(exceptions=Exception, tries=2)(func)
 

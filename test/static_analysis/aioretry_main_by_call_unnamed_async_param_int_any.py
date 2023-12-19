@@ -1,5 +1,6 @@
 '''Test aioretry_main_by_call_unnamed_async_param_int_any.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 
@@ -13,6 +14,7 @@ from kaioretry import retry, aioretry, Retry, Context
 async def func(x: int, y: int) -> Any:
     ''' ... '''
     return 'return_value'
+
 
 wrapped: Callable[[int, int], Awaitable[Any]] = aioretry(Exception, 2)(func)
 

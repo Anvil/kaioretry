@@ -1,5 +1,6 @@
 '''Test aioretry_main_by_call_unnamed_async_kwargs_any_str.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 
@@ -13,6 +14,7 @@ from kaioretry import retry, aioretry, Retry, Context
 async def func(**kwargs: Any) -> str:
     ''' ... '''
     return 'return_value'
+
 
 wrapped: Callable[[KwArg(Any)], Awaitable[str]] = aioretry(Exception, 2)(func)
 

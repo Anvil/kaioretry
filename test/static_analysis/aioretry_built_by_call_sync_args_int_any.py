@@ -1,5 +1,6 @@
 '''Test aioretry_built_by_call_sync_args_int_any.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 
@@ -13,6 +14,7 @@ from kaioretry import retry, aioretry, Retry, Context
 def func(*args: int) -> Any:
     ''' ... '''
     return 'return_value'
+
 
 wrapped: Callable[[VarArg(int)], Awaitable[Any]] = Retry(exceptions=(ValueError, NotImplementedError), context=Context(tries=5, delay=2)).aioretry(func)
 

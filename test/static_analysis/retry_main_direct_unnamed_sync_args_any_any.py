@@ -1,5 +1,6 @@
 '''Test retry_main_direct_unnamed_sync_args_any_any.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 

@@ -150,6 +150,7 @@ class Decoration:
             type_hint = self.function.type_hint(self.decorator_name == "aioretry")
             return f"""{self.function}
 
+
 {self.decoration}: {type_hint} = {self.build}({self.function.name})"""
         
 
@@ -194,6 +195,7 @@ class TestFile:
     def __str__(self) -> str:
         return f"""'''Test {self.name} '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 

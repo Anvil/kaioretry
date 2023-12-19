@@ -1,5 +1,6 @@
 '''Test retry_main_by_call_unnamed_sync_param_int_any.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 
@@ -13,6 +14,7 @@ from kaioretry import retry, aioretry, Retry, Context
 def func(x: int, y: int) -> Any:
     ''' ... '''
     return 'return_value'
+
 
 wrapped: Callable[[int, int], Any] = retry(Exception, 2)(func)
 

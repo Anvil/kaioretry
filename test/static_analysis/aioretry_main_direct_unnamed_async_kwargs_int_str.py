@@ -1,5 +1,6 @@
 '''Test aioretry_main_direct_unnamed_async_kwargs_int_str.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 

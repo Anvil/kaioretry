@@ -1,5 +1,6 @@
 '''Test aioretry_main_direct_named_sync_kwargs_any_any.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 

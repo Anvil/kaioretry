@@ -1,5 +1,6 @@
 '''Test aioretry_built_direct_sync_param_int_str.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 

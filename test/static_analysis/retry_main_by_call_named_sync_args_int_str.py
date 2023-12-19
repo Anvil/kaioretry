@@ -1,5 +1,6 @@
 '''Test retry_main_by_call_named_sync_args_int_str.py '''
 
+# flake8: noqa
 # pylint: disable=unused-import, unused-argument, invalid-name, R0801
 
 
@@ -13,6 +14,7 @@ from kaioretry import retry, aioretry, Retry, Context
 def func(*args: int) -> str:
     ''' ... '''
     return 'return_value'
+
 
 wrapped: Callable[[VarArg(int)], str] = retry(exceptions=Exception, tries=2)(func)
 
