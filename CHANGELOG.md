@@ -10,10 +10,16 @@
 ### Changes
 
 ### Fixes
-* minor improvement to log messages
-* improve flake8 of source and tests
 
 ### Breaks
+
+
+## 1.0.2 - (2023-12-19)
+---
+
+### Fixes
+* minor improvement to log messages
+* improve flake8 of source and tests
 
 
 ## 1.0.1 - (2023-12-17)
