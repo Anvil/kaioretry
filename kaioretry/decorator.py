@@ -226,12 +226,12 @@ class Retry:
     @overload
     def aioretry(self, func: AwaitableFunc[FuncParam, FuncRetVal]) \
             -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...
+        ...                     # pragma: nocover
 
     @overload
     def aioretry(self, func: Callable[FuncParam, FuncRetVal]) \
             -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...
+        ...                     # pragma: nocover
 
     def aioretry(self, func: AnyFunction[FuncParam, FuncRetVal]) \
             -> AioretryCoro[FuncParam, FuncRetVal]:

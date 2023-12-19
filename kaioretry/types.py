@@ -58,12 +58,12 @@ class AioretryProtocol(Protocol):
     @overload
     def __call__(self, func: AwaitableFunc[FuncParam, FuncRetVal]) \
             -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...
+        ...                     # pragma: nocover
 
     @overload
     def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
             -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...
+        ...                     # pragma: nocover
 
     def __call__(self, func: AnyFunction[FuncParam, FuncRetVal]) \
             -> AioretryCoro[FuncParam, FuncRetVal]:
