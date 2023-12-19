@@ -14,7 +14,7 @@ maintaining the delay value and the retry count.
    1
    2
    3
-   >>> 
+   >>>
 
 
 Should you wish to persist indefinitely. It is supported.
@@ -54,7 +54,7 @@ It's possible to insert delay between tries.
    1677350590.3776977
    1677350591.403194
    1677350592.429291
-   >>> 
+   >>>
 
 
 It will also log its actions and will help keep things being traceable by
@@ -67,18 +67,18 @@ adding a per-loop identifier to the logs. e.g:
    >>> logging.basicConfig(stream=sys.stdout, encoding='utf-8', level=logging.DEBUG)
    >>> from kaioretry import Context
    >>> for _ in context: pass
-   ... 
+   ...
    INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: 2 tries remaining
    INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: sleeping 0 seconds
    INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: 1 tries remaining
    INFO:kaioretry.context:00cc19af-7339-442f-9804-16eb10788068: sleeping 0 seconds
    >>> for _ in context: pass
-   ... 
+   ...
    INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: 2 tries remaining
    INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: sleeping 0 seconds
    INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: 1 tries remaining
    INFO:kaioretry.context:1c4ddbdb-f2b0-4377-a840-92ea8c651ac1: sleeping 0 seconds
-   >>> 
+   >>>
 
 If you consider this from :py:class:`~kaioretry.Retry` point of view, it means
 that you can keep track of calls, delays and number of tries per calls.
@@ -227,8 +227,8 @@ class Context:
         delay = max(delay, self.__min_delay)
         return delay
 
-    def __make_iterator(
-            self, sleep: SleepF[SleepRetVal]) -> Generator[SleepRetVal, None, None]:
+    def __make_iterator(self, sleep: SleepF[SleepRetVal]) -> Generator[
+            SleepRetVal, None, None]:
         return iter(_ContextIterator(
             uuid.uuid4(), sleep, self.__tries, self.__delay,
             self.__update_delay, self.__logger))

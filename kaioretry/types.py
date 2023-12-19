@@ -46,6 +46,7 @@ AwaitableFunc: TypeAlias = Callable[FuncParam, Awaitable[FuncRetVal]]
 AnyFunction: TypeAlias = AwaitableFunc[FuncParam, FuncRetVal] | \
     Callable[FuncParam, FuncRetVal]
 
+
 class AioretryProtocol(Protocol):
 
     """The :py:class:`typing.Protocol` describing the behaviour of the
@@ -74,6 +75,8 @@ class AioretryProtocol(Protocol):
 
             * if ``func`` returns an :py:class:`~collections.abc.Awaitable`,
               then return a same-signature same-type coroutine function.
-            * If ``func`` does not, then return a same-signature *coroutine* function
-              that, once awaited, return ``func`` original return value.
+            * If ``func`` does not, then return a same-signature *coroutine*
+              function that, once awaited, return ``func`` original return
+              value.
+
         """

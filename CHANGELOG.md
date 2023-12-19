@@ -10,6 +10,7 @@
 ### Changes
 
 ### Fixes
+* improve flake8 of source and tests
 
 ### Breaks
 
