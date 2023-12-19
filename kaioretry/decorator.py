@@ -120,6 +120,7 @@ class Retry:
     :param logger: the :py:class:`logging.Logger` to which the log
         messages will be sent to.
 
+    .. automethod:: __call__
     """
 
     DEFAULT_LOGGER: Final[logging.Logger] = logging.getLogger(__name__)
@@ -312,6 +313,12 @@ class Retry:
 
     def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
             -> Callable[FuncParam, FuncRetVal]:
+        """Decorate a function the most accurately possible.
+
+        if ``func`` is a function that involves asyncio, use
+           :py:meth:`~kaioretry.decorator.Retry.aioretry`, else use
+           :py:meth:`~kaioretry.decorator.Retry.retry`.
+        """
         if self.is_func_async(func):
             return cast(Callable[FuncParam, FuncRetVal], self.aioretry(func))
         return self.retry(func)
