@@ -99,7 +99,7 @@ from collections.abc import Callable, Generator, AsyncGenerator
 from .types import NonNegative, Number, UpdateDelayFunc
 
 
-SleepRetVal = TypeVar('SleepRetVal', None, Awaitable[None])
+SleepRetVal = TypeVar("SleepRetVal", None, Awaitable[None])
 SleepF = Callable[[Number], SleepRetVal]
 
 
@@ -108,9 +108,16 @@ class _ContextIterator(Generic[SleepRetVal]):
 
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, identifier: uuid.UUID, sleep: SleepF[Any], tries: int,
-                 delay: NonNegative, update_delay: UpdateDelayFunc,
-                 logger: logging.Logger, /) -> None:
+    def __init__(
+        self,
+        identifier: uuid.UUID,
+        sleep: SleepF[Any],
+        tries: int,
+        delay: NonNegative,
+        update_delay: UpdateDelayFunc,
+        logger: logging.Logger,
+        /,
+    ) -> None:
         # pylint: disable=too-many-arguments
         self.__identifier = identifier
         self.__sleep = sleep
@@ -188,11 +195,17 @@ class Context:
     are provided to the constructor.
     """
 
-    def __init__(self, /, tries: int = -1, delay: NonNegative = 0, *,
-                 update_delay: UpdateDelayFunc = lambda value: value,
-                 max_delay: NonNegative | None = None,
-                 min_delay: NonNegative = 0,
-                 logger: logging.Logger = DEFAULT_LOGGER) -> None:
+    def __init__(
+        self,
+        /,
+        tries: int = -1,
+        delay: NonNegative = 0,
+        *,
+        update_delay: UpdateDelayFunc = lambda value: value,
+        max_delay: NonNegative | None = None,
+        min_delay: NonNegative = 0,
+        logger: logging.Logger = DEFAULT_LOGGER,
+    ) -> None:
         # pylint: disable=too-many-arguments
         if tries == 0:
             raise ValueError("tries value cannot be 0")
@@ -200,18 +213,19 @@ class Context:
         self.__delay = delay
         self.__update_delay_value = update_delay
         if min_delay < 0:
-            raise ValueError(
-                f"min_delay cannot be less than 0. ({min_delay} given)")
+            raise ValueError(f"min_delay cannot be less than 0. ({min_delay} given)")
         self.__min_delay = min_delay
         if max_delay is not None and max_delay < min_delay:
             raise ValueError(
                 "min_delay cannot be greater than max_delay. "
-                f"min given: {min_delay}. max given: {max_delay}")
+                f"min given: {min_delay}. max given: {max_delay}"
+            )
         self.__max_delay = max_delay
         self.__str = (
             f"{self.__class__.__name__}("
             f"tries={tries}, "
-            f"delay=({min_delay}<={delay}<={max_delay}))")
+            f"delay=({min_delay}<={delay}<={max_delay}))"
+        )
         self.__logger = logger
 
     def __update_delay(self, delay: NonNegative) -> NonNegative:
@@ -227,11 +241,19 @@ class Context:
         delay = max(delay, self.__min_delay)
         return delay
 
-    def __make_iterator(self, sleep: SleepF[SleepRetVal]) -> Generator[
-            SleepRetVal, None, None]:
-        return iter(_ContextIterator(
-            uuid.uuid4(), sleep, self.__tries, self.__delay,
-            self.__update_delay, self.__logger))
+    def __make_iterator(
+        self, sleep: SleepF[SleepRetVal]
+    ) -> Generator[SleepRetVal, None, None]:
+        return iter(
+            _ContextIterator(
+                uuid.uuid4(),
+                sleep,
+                self.__tries,
+                self.__delay,
+                self.__update_delay,
+                self.__logger,
+            )
+        )
 
     def __iter__(self) -> Generator[None, None, None]:
         """Returns a generator that perform sleep (using regular
@@ -257,4 +279,4 @@ class Context:
         return self.__str
 
 
-__all__ = ['Context']
+__all__ = ["Context"]

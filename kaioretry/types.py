@@ -20,8 +20,8 @@ Number: TypeAlias = int | float
 
 
 # Until better implementation.
-NonNegative: TypeAlias = Number   # >= 0
-Positive: TypeAlias = Number      # >  0
+NonNegative: TypeAlias = Number  # >= 0
+Positive: TypeAlias = Number  # >  0
 
 
 # jitter parameter type is a bit specific
@@ -29,22 +29,22 @@ JitterTuple: TypeAlias = tuple[Number, Number]
 Jitter: TypeAlias = Number | JitterTuple
 
 
-FuncParam = ParamSpec('FuncParam')
+FuncParam = ParamSpec("FuncParam")
 
-FuncRetVal = TypeVar('FuncRetVal')
+FuncRetVal = TypeVar("FuncRetVal")
 
 Function: TypeAlias = Callable[..., Any]
 
 UpdateDelayFunc: TypeAlias = Callable[[NonNegative], NonNegative]
 
 
-AioretryCoro: TypeAlias = Callable[
-    FuncParam, Coroutine[None, None, FuncRetVal]]
+AioretryCoro: TypeAlias = Callable[FuncParam, Coroutine[None, None, FuncRetVal]]
 
 AwaitableFunc: TypeAlias = Callable[FuncParam, Awaitable[FuncRetVal]]
 
-AnyFunction: TypeAlias = AwaitableFunc[FuncParam, FuncRetVal] | \
-    Callable[FuncParam, FuncRetVal]
+AnyFunction: TypeAlias = (
+    AwaitableFunc[FuncParam, FuncRetVal] | Callable[FuncParam, FuncRetVal]
+)
 
 
 class AioretryProtocol(Protocol):
@@ -56,17 +56,20 @@ class AioretryProtocol(Protocol):
     """
 
     @overload
-    def __call__(self, func: AwaitableFunc[FuncParam, FuncRetVal]) \
-            -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...                     # pragma: nocover
+    def __call__(
+        self, func: AwaitableFunc[FuncParam, FuncRetVal]
+    ) -> AioretryCoro[FuncParam, FuncRetVal]:
+        ...  # pragma: nocover
 
     @overload
-    def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
-            -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...                     # pragma: nocover
+    def __call__(
+        self, func: Callable[FuncParam, FuncRetVal]
+    ) -> AioretryCoro[FuncParam, FuncRetVal]:
+        ...  # pragma: nocover
 
-    def __call__(self, func: AnyFunction[FuncParam, FuncRetVal]) \
-            -> AioretryCoro[FuncParam, FuncRetVal]:
+    def __call__(
+        self, func: AnyFunction[FuncParam, FuncRetVal]
+    ) -> AioretryCoro[FuncParam, FuncRetVal]:
         """When called (to decorate a function), an aioretry decorator will...
 
         :param func: ... take a function as input...

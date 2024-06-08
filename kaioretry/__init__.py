@@ -7,8 +7,17 @@ from typing import cast, Final
 from collections.abc import Callable
 from mypy_extensions import DefaultNamedArg, DefaultArg
 
-from .types import Exceptions, NonNegative, Number, Jitter, \
-    FuncParam, FuncRetVal, UpdateDelayFunc, JitterTuple, AioretryProtocol
+from .types import (
+    Exceptions,
+    NonNegative,
+    Number,
+    Jitter,
+    FuncParam,
+    FuncRetVal,
+    UpdateDelayFunc,
+    JitterTuple,
+    AioretryProtocol,
+)
 from .context import Context
 from .decorator import Retry
 
@@ -16,7 +25,9 @@ from .decorator import Retry
 __version__ = "1.0.2"
 
 
-RETRY_PARAMS_DOCSTRING: Final[str] = """
+RETRY_PARAMS_DOCSTRING: Final[
+    str
+] = """
     :param exceptions: exceptions classes that will trigger another
         try. Other exceptions raised by the decorated function will
         not trigger a retry. The value of the exceptions parameters
@@ -54,17 +65,21 @@ RETRY_PARAMS_DOCSTRING: Final[str] = """
 """
 
 
-def _make_decorator(func: Callable[[Retry], FuncRetVal]) \
-    -> Callable[[
-        DefaultArg(Exceptions, 'exceptions'),  # noqa: F821
-        DefaultArg(int, 'tries'),              # noqa: F821
-        DefaultNamedArg(NonNegative, 'delay'),  # noqa: F821
-        DefaultNamedArg(Number, 'backoff'),  # noqa: F821
-        DefaultNamedArg(Jitter, 'jitter'),  # noqa: F821
-        DefaultNamedArg(NonNegative | None, 'max_delay'),  # noqa: F821
-        DefaultNamedArg(NonNegative, 'min_delay'),  # noqa: F821
-        DefaultNamedArg(logging.Logger, 'logger')],  # noqa: F821
-                FuncRetVal]:
+def _make_decorator(
+    func: Callable[[Retry], FuncRetVal]
+) -> Callable[
+    [
+        DefaultArg(Exceptions, "exceptions"),  # noqa: F821
+        DefaultArg(int, "tries"),  # noqa: F821
+        DefaultNamedArg(NonNegative, "delay"),  # noqa: F821
+        DefaultNamedArg(Number, "backoff"),  # noqa: F821
+        DefaultNamedArg(Jitter, "jitter"),  # noqa: F821
+        DefaultNamedArg(NonNegative | None, "max_delay"),  # noqa: F821
+        DefaultNamedArg(NonNegative, "min_delay"),  # noqa: F821
+        DefaultNamedArg(logging.Logger, "logger"),
+    ],  # noqa: F821
+    FuncRetVal,
+]:
     """Create a function that will accept a bunch of parameters and
     create the matching :py:class:`Retry` and :py:class:`Context`
     objects, in order to be compatible with the origin retry module.
@@ -82,30 +97,41 @@ def _make_decorator(func: Callable[[Retry], FuncRetVal]) \
 
     # pylint: disable=too-many-arguments
     def decoration(
-            exceptions: Exceptions = Exception, tries: int = -1, *,
-            delay: NonNegative = 0, backoff: Number = 1,
-            jitter: Jitter = 0,  max_delay: NonNegative | None = None,
-            min_delay: NonNegative = 0,
-            logger: logging.Logger = Retry.DEFAULT_LOGGER) \
-            -> FuncRetVal:
-
+        exceptions: Exceptions = Exception,
+        tries: int = -1,
+        *,
+        delay: NonNegative = 0,
+        backoff: Number = 1,
+        jitter: Jitter = 0,
+        max_delay: NonNegative | None = None,
+        min_delay: NonNegative = 0,
+        logger: logging.Logger = Retry.DEFAULT_LOGGER,
+    ) -> FuncRetVal:
         if isinstance(jitter, (int, float)):
             jitter_f = cast(UpdateDelayFunc, jitter.__add__)
         elif isinstance(jitter, (tuple, list)):
+
             def jitter_f(delay: Number) -> Number:
                 return random.uniform(*cast(JitterTuple, jitter)) + delay
+
         else:
-            raise TypeError("jitter parameter is neither a number "
-                            f"nor a 2 length tuple: {jitter}")
+            raise TypeError(
+                "jitter parameter is neither a number "
+                f"nor a 2 length tuple: {jitter}"
+            )
 
         def update_delay(delay: NonNegative) -> NonNegative:
             return jitter_f(delay * backoff)
 
         context = Context(
-            tries=tries, delay=delay, update_delay=update_delay,
-            max_delay=max_delay, min_delay=min_delay, logger=logger)
-        retry_obj = Retry(
-            exceptions=exceptions, context=context, logger=logger)
+            tries=tries,
+            delay=delay,
+            update_delay=update_delay,
+            max_delay=max_delay,
+            min_delay=min_delay,
+            logger=logger,
+        )
+        retry_obj = Retry(exceptions=exceptions, context=context, logger=logger)
         return func(retry_obj)
 
     # No need to override module
@@ -113,17 +139,17 @@ def _make_decorator(func: Callable[[Retry], FuncRetVal]) \
     decoration.__qualname__ = func.__qualname__
 
     # Override return value annotation but not parameters.
-    decoration.__annotations__['return'] = func.__annotations__['return']
+    decoration.__annotations__["return"] = func.__annotations__["return"]
 
     if func.__doc__ is not None:  # pragma: nocover
-        decoration.__doc__ = func.__doc__.replace(
-            "%PARAMS%", RETRY_PARAMS_DOCSTRING)
+        decoration.__doc__ = func.__doc__.replace("%PARAMS%", RETRY_PARAMS_DOCSTRING)
     return decoration
 
 
 @_make_decorator
-def retry(retry_obj: Retry) -> Callable[[Callable[FuncParam, FuncRetVal]],
-                                        Callable[FuncParam, FuncRetVal]]:
+def retry(
+    retry_obj: Retry,
+) -> Callable[[Callable[FuncParam, FuncRetVal]], Callable[FuncParam, FuncRetVal]]:
     """Return a new retry decorator, suitable for regular functions. Functions
     decorated will transparently retry when a exception is raised.
 
@@ -157,4 +183,4 @@ def aioretry(retry_obj: Retry) -> AioretryProtocol:
     return retry_obj.aioretry
 
 
-__all__ = ['Retry', 'Context', 'retry', 'aioretry']
+__all__ = ["Retry", "Context", "retry", "aioretry"]

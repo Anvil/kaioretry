@@ -80,11 +80,26 @@ import logging
 import functools
 
 from collections.abc import Callable, Awaitable
-from typing import cast, Any, NoReturn, Awaitable as OldAwaitable, \
-    overload, TypeGuard, Final
+from typing import (
+    cast,
+    Any,
+    NoReturn,
+    Awaitable as OldAwaitable,
+    overload,
+    TypeGuard,
+    Final,
+)
 
-from .types import Exceptions, ExceptionList, FuncParam, \
-    FuncRetVal, Function, AioretryCoro, AwaitableFunc, AnyFunction
+from .types import (
+    Exceptions,
+    ExceptionList,
+    FuncParam,
+    FuncRetVal,
+    Function,
+    AioretryCoro,
+    AwaitableFunc,
+    AnyFunction,
+)
 from .context import Context
 
 
@@ -136,9 +151,13 @@ class Retry:
     """
 
     def __init__(
-            self, /, exceptions: Exceptions = Exception,
-            context: Context = DEFAULT_CONTEXT, *,
-            logger: logging.Logger = DEFAULT_LOGGER) -> None:
+        self,
+        /,
+        exceptions: Exceptions = Exception,
+        context: Context = DEFAULT_CONTEXT,
+        *,
+        logger: logging.Logger = DEFAULT_LOGGER,
+    ) -> None:
         self.__exceptions = exceptions
         self.__context = context
         self.__logger = logger
@@ -146,8 +165,8 @@ class Retry:
             exc_str = exceptions.__name__
         else:
             exc_str = ", ".join(
-                exception.__name__
-                for exception in cast(ExceptionList, exceptions))
+                exception.__name__ for exception in cast(ExceptionList, exceptions)
+            )
         self.__str = f"{self.__class__.__name__}({exc_str}, {context})"
 
     def __log(self, level: int, fmt: str, *args: Any) -> None:
@@ -155,27 +174,31 @@ class Retry:
 
     def __caught_error(self, func: Function, error: BaseException) -> None:
         self.__log(
-            logging.WARN, "%s caught while running %s: %s",
-            error.__class__.__qualname__, func.__qualname__, error)
+            logging.WARN,
+            "%s caught while running %s: %s",
+            error.__class__.__qualname__,
+            func.__qualname__,
+            error,
+        )
 
     def __final_error(self, func: Function, error: BaseException) -> NoReturn:
         self.__log(logging.WARN, "%s failed to complete", func.__qualname__)
         raise error
 
     def __success(self, func: Function) -> None:
-        self.__log(
-            logging.INFO, "%s has succesfully completed", func.__qualname__)
+        self.__log(logging.INFO, "%s has succesfully completed", func.__qualname__)
 
     @staticmethod
-    def __fix_decoration(original: Callable[..., Any],
-                         wrapped: Callable[..., Any]) -> None:
+    def __fix_decoration(
+        original: Callable[..., Any], wrapped: Callable[..., Any]
+    ) -> None:
         """Apply original function metadata to wrapped function.
 
         This is basically a rip off of what is done in the decorate function
         from the decorator module.
         """
         sig = inspect.signature(original)
-        wrapped.__signature__ = sig         # type: ignore[attr-defined]
+        wrapped.__signature__ = sig  # type: ignore[attr-defined]
 
         for attr in ("__defaults__", "__kwdefaults__", "__signature_text__"):
             try:
@@ -183,8 +206,9 @@ class Retry:
             except AttributeError:
                 continue
 
-    def retry(self, func: Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, FuncRetVal]:
+    def retry(
+        self, func: Callable[FuncParam, FuncRetVal]
+    ) -> Callable[FuncParam, FuncRetVal]:
         """This method is a decorator. The returned and newly-produced
         function will the same signature, docstring and type annotations as
         the original one but will also transparently be able to retry when an
@@ -200,8 +224,7 @@ class Retry:
         """
 
         @functools.wraps(func)
-        def wrapped(*args: FuncParam.args,
-                    **kwargs: FuncParam.kwargs) -> FuncRetVal:
+        def wrapped(*args: FuncParam.args, **kwargs: FuncParam.kwargs) -> FuncRetVal:
             # pylint: disable=inconsistent-return-statements
             # For some reason, pylint and python 3.12 seem to raise false
             # positives no-members warnings on ParamSpec.
@@ -224,17 +247,20 @@ class Retry:
         return wrapped
 
     @overload
-    def aioretry(self, func: AwaitableFunc[FuncParam, FuncRetVal]) \
-            -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...                     # pragma: nocover
+    def aioretry(
+        self, func: AwaitableFunc[FuncParam, FuncRetVal]
+    ) -> AioretryCoro[FuncParam, FuncRetVal]:
+        ...  # pragma: nocover
 
     @overload
-    def aioretry(self, func: Callable[FuncParam, FuncRetVal]) \
-            -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...                     # pragma: nocover
+    def aioretry(
+        self, func: Callable[FuncParam, FuncRetVal]
+    ) -> AioretryCoro[FuncParam, FuncRetVal]:
+        ...  # pragma: nocover
 
-    def aioretry(self, func: AnyFunction[FuncParam, FuncRetVal]) \
-            -> AioretryCoro[FuncParam, FuncRetVal]:
+    def aioretry(
+        self, func: AnyFunction[FuncParam, FuncRetVal]
+    ) -> AioretryCoro[FuncParam, FuncRetVal]:
         """Similar to :py:meth:`~Retry.retry`, this method is a decorator and
         will produce exact the same result, *except* that the decorated
         function is a :py:class:`~collections.abc.Coroutine`, and that delays
@@ -253,8 +279,9 @@ class Retry:
         """
 
         @functools.wraps(func)
-        async def wrapped(*args: FuncParam.args,
-                          **kwargs: FuncParam.kwargs) -> FuncRetVal:
+        async def wrapped(
+            *args: FuncParam.args, **kwargs: FuncParam.kwargs
+        ) -> FuncRetVal:
             # See above.
             # pylint: disable=no-member
             async for _ in self.__context:
@@ -288,7 +315,7 @@ class Retry:
 
         """
         try:
-            rtype = func.__annotations__['return']
+            rtype = func.__annotations__["return"]
         except (AttributeError, KeyError):
             return False
         try:
@@ -298,8 +325,9 @@ class Retry:
         return not cls.__is_not_async_type({rtype, origin})
 
     @classmethod
-    def is_func_async(cls, func: Callable[FuncParam, Any]) \
-            -> TypeGuard[AwaitableFunc[FuncParam, Any]]:
+    def is_func_async(
+        cls, func: Callable[FuncParam, Any]
+    ) -> TypeGuard[AwaitableFunc[FuncParam, Any]]:
         """Tell if a function can be considered async, either because it's a
         :py:class:`~collections.abc.Coroutine`, an
         :py:class:`~collections.abc.AsyncGenerator` or because it is annotated
@@ -308,11 +336,13 @@ class Retry:
 
         :param func: any callable, basically.
         """
-        return inspect.iscoroutinefunction(func) or \
-            cls._has_async_return_annotation(func)
+        return inspect.iscoroutinefunction(func) or cls._has_async_return_annotation(
+            func
+        )
 
-    def __call__(self, func: Callable[FuncParam, FuncRetVal]) \
-            -> Callable[FuncParam, FuncRetVal]:
+    def __call__(
+        self, func: Callable[FuncParam, FuncRetVal]
+    ) -> Callable[FuncParam, FuncRetVal]:
         """Decorate a function the most accurately possible.
 
         if ``func`` is a function that involves asyncio, use
@@ -327,4 +357,4 @@ class Retry:
         return self.__str
 
 
-__all__ = ['Retry']
+__all__ = ["Retry"]
