@@ -65,9 +65,7 @@ RETRY_PARAMS_DOCSTRING: Final[
 """
 
 
-def _make_decorator(
-    func: Callable[[Retry], FuncRetVal]
-) -> Callable[
+def _make_decorator(func: Callable[[Retry], FuncRetVal]) -> Callable[
     [
         DefaultArg(Exceptions, "exceptions"),  # noqa: F821
         DefaultArg(int, "tries"),  # noqa: F821
@@ -131,7 +129,9 @@ def _make_decorator(
             min_delay=min_delay,
             logger=logger,
         )
-        retry_obj = Retry(exceptions=exceptions, context=context, logger=logger)
+        retry_obj = Retry(
+            exceptions=exceptions, context=context, logger=logger
+        )
         return func(retry_obj)
 
     # No need to override module
@@ -142,14 +142,18 @@ def _make_decorator(
     decoration.__annotations__["return"] = func.__annotations__["return"]
 
     if func.__doc__ is not None:  # pragma: nocover
-        decoration.__doc__ = func.__doc__.replace("%PARAMS%", RETRY_PARAMS_DOCSTRING)
+        decoration.__doc__ = func.__doc__.replace(
+            "%PARAMS%", RETRY_PARAMS_DOCSTRING
+        )
     return decoration
 
 
 @_make_decorator
 def retry(
     retry_obj: Retry,
-) -> Callable[[Callable[FuncParam, FuncRetVal]], Callable[FuncParam, FuncRetVal]]:
+) -> Callable[
+    [Callable[FuncParam, FuncRetVal]], Callable[FuncParam, FuncRetVal]
+]:
     """Return a new retry decorator, suitable for regular functions. Functions
     decorated will transparently retry when a exception is raised.
 

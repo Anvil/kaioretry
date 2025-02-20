@@ -22,7 +22,8 @@ def randint():
 
 
 for_each_module_attribute = pytest.mark.parametrize(
-    "attribute", ("retry", "aioretry"))
+    "attribute", ("retry", "aioretry")
+)
 
 
 @for_each_module_attribute
@@ -34,8 +35,9 @@ def test_retry(exception, mocker, attribute):
 
     context_params = ("tries", "delay", "max_delay", "min_delay", "logger")
     non_context_params = ("backoff", "jitter")
-    params = {param: randint()
-              for param in context_params + non_context_params}
+    params = {
+        param: randint() for param in context_params + non_context_params
+    }
     params["logger"] = logger
 
     func = getattr(kaioretry, attribute)
@@ -49,16 +51,20 @@ def test_retry(exception, mocker, attribute):
     assert callable(context_cls.call_args[1]["update_delay"])
 
     retry_cls.assert_called_once_with(
-        exceptions=exception, context=context_cls.return_value, logger=logger)
+        exceptions=exception, context=context_cls.return_value, logger=logger
+    )
     assert result == getattr(retry_cls.return_value, attribute)
 
 
 @for_each_module_attribute
 @pytest.mark.parametrize(
     "jitter, expectation",
-    ((1, does_not_raise()),
-     ((1, 2), does_not_raise()),
-     ("abc", pytest.raises(TypeError))))
+    (
+        (1, does_not_raise()),
+        ((1, 2), does_not_raise()),
+        ("abc", pytest.raises(TypeError)),
+    ),
+)
 def test_retry_jitter_values(exception, attribute, jitter, expectation):
     """Test validation of jitter values"""
     func = getattr(kaioretry, attribute)
@@ -75,5 +81,5 @@ def test_metadata(attribute):
     func = getattr(kaioretry, attribute)
     assert func.__name__ == attribute
     assert func.__qualname__ == attribute
-    assert 'retry_obj' not in func.__annotations__
-    assert func.__annotations__['return'] != FuncRetVal
+    assert "retry_obj" not in func.__annotations__
+    assert func.__annotations__["return"] != FuncRetVal

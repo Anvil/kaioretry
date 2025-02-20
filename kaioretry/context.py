@@ -149,7 +149,6 @@ class _ContextIterator(Generic[SleepRetVal]):
 
 
 class Context:
-
     """The Retry Context will maintain the number of tries and the
     delay between those tries.
 
@@ -213,7 +212,9 @@ class Context:
         self.__delay = delay
         self.__update_delay_value = update_delay
         if min_delay < 0:
-            raise ValueError(f"min_delay cannot be less than 0. ({min_delay} given)")
+            raise ValueError(
+                f"min_delay cannot be less than 0. ({min_delay} given)"
+            )
         self.__min_delay = min_delay
         if max_delay is not None and max_delay < min_delay:
             raise ValueError(

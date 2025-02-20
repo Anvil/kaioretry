@@ -104,7 +104,6 @@ from .context import Context
 
 
 class Retry:
-
     """Objects of the Retry class are retry decorators.
 
     They can decorate both functions and coroutine functions. Every
@@ -165,7 +164,8 @@ class Retry:
             exc_str = exceptions.__name__
         else:
             exc_str = ", ".join(
-                exception.__name__ for exception in cast(ExceptionList, exceptions)
+                exception.__name__
+                for exception in cast(ExceptionList, exceptions)
             )
         self.__str = f"{self.__class__.__name__}({exc_str}, {context})"
 
@@ -186,7 +186,9 @@ class Retry:
         raise error
 
     def __success(self, func: Function) -> None:
-        self.__log(logging.INFO, "%s has succesfully completed", func.__qualname__)
+        self.__log(
+            logging.INFO, "%s has succesfully completed", func.__qualname__
+        )
 
     @staticmethod
     def __fix_decoration(
@@ -224,7 +226,9 @@ class Retry:
         """
 
         @functools.wraps(func)
-        def wrapped(*args: FuncParam.args, **kwargs: FuncParam.kwargs) -> FuncRetVal:
+        def wrapped(
+            *args: FuncParam.args, **kwargs: FuncParam.kwargs
+        ) -> FuncRetVal:
             # pylint: disable=inconsistent-return-statements
             # For some reason, pylint and python 3.12 seem to raise false
             # positives no-members warnings on ParamSpec.
@@ -249,14 +253,12 @@ class Retry:
     @overload
     def aioretry(
         self, func: AwaitableFunc[FuncParam, FuncRetVal]
-    ) -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...  # pragma: nocover
+    ) -> AioretryCoro[FuncParam, FuncRetVal]: ...  # pragma: nocover
 
     @overload
     def aioretry(
         self, func: Callable[FuncParam, FuncRetVal]
-    ) -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...  # pragma: nocover
+    ) -> AioretryCoro[FuncParam, FuncRetVal]: ...  # pragma: nocover
 
     def aioretry(
         self, func: AnyFunction[FuncParam, FuncRetVal]
@@ -336,9 +338,9 @@ class Retry:
 
         :param func: any callable, basically.
         """
-        return inspect.iscoroutinefunction(func) or cls._has_async_return_annotation(
+        return inspect.iscoroutinefunction(
             func
-        )
+        ) or cls._has_async_return_annotation(func)
 
     def __call__(
         self, func: Callable[FuncParam, FuncRetVal]

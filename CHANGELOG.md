@@ -9,6 +9,7 @@
 * add python 3.13 pipelines
 
 ### Changes
+* blacken source code
 * Convert pyproject to a more standard format
 * Update to poetry 2.1
 

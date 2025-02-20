@@ -18,8 +18,8 @@ async def assert_context_async_length(context, length):
 
 
 @pytest_cases.fixture(
-    unpack_into="assert_length, sleep",
-    params=("sync", "async"))
+    unpack_into="assert_length, sleep", params=("sync", "async")
+)
 def sync_async(request, ssleep, asleep):
     """Yield the matching assert_context_legnth and sleep functions"""
     if request.param == "async":
@@ -29,11 +29,17 @@ def sync_async(request, ssleep, asleep):
 
 
 @pytest.mark.parametrize(
-    "params", ({"tries": 0},
-               {"jitter": "asdf"},
-               {"min_delay": random.randint(-1000, -1)},
-               {"min_delay": random.randint(50, 100),
-                "max_delay": random.randint(1, 50)}))
+    "params",
+    (
+        {"tries": 0},
+        {"jitter": "asdf"},
+        {"min_delay": random.randint(-1000, -1)},
+        {
+            "min_delay": random.randint(50, 100),
+            "max_delay": random.randint(1, 50),
+        },
+    ),
+)
 def test_context_bad_param(params):
     """Test that bad params values/types trigger matching exceptions"""
     with pytest.raises((ValueError, TypeError)):
@@ -61,9 +67,11 @@ async def test_context_logging(mocker, assert_length, sleep):
 
 
 @pytest.mark.parametrize(
-    "update_delay", (lambda x: x, lambda _: random.randint(3, 10)))
+    "update_delay", (lambda x: x, lambda _: random.randint(3, 10))
+)
 async def test_context_delay_first_unaltered(
-        assert_length, sleep, update_delay):
+    assert_length, sleep, update_delay
+):
     """Test that jitter and backoff do not alter the first value of delay"""
     tries = 2
     delay = random.randint(1, 100)
@@ -74,16 +82,21 @@ async def test_context_delay_first_unaltered(
 
 @pytest.mark.parametrize(
     "delay, max_delay, expected, update_delay",
-    ((5, 6, 5, lambda x: x),
-     (5, 6, 6, lambda x: x + random.randint(3, 10))))
-async def test_context_max_delay(mocker, assert_length, sleep, delay,
-                                 max_delay, expected, update_delay):
+    ((5, 6, 5, lambda x: x), (5, 6, 6, lambda x: x + random.randint(3, 10))),
+)
+async def test_context_max_delay(
+    mocker, assert_length, sleep, delay, max_delay, expected, update_delay
+):
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     """context delay should not grow bigger than max_delay"""
     tries = 3
     update_delay_mock = mocker.MagicMock(side_effect=update_delay)
-    context = Context(tries=tries, delay=delay, max_delay=max_delay,
-                      update_delay=update_delay_mock)
+    context = Context(
+        tries=tries,
+        delay=delay,
+        max_delay=max_delay,
+        update_delay=update_delay_mock,
+    )
     await assert_length(context, tries)
 
     sleep.assert_any_call(delay)

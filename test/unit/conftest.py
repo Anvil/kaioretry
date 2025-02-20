@@ -44,12 +44,13 @@ def async_disguises():
             def _async_in_disguise(first=1, second=2) -> rtype:
                 # pylint: disable=unused-argument
                 return asyncio.sleep(0)
+
             yield _async_in_disguise
 
 
 def random_string(length=10):
     """Return a random string"""
-    return ''.join(choice(string.ascii_lowercase) for _ in range(length))
+    return "".join(choice(string.ascii_lowercase) for _ in range(length))
 
 
 def auto_spec(func):
@@ -91,26 +92,35 @@ async def assert_sync_result(result, expected):
     assert result == expected
 
 
-_is_func_async_cases_list = ((_sync, False),
-                             (_async, True),
-                             *[(async_in_disguise, True)
-                               for async_in_disguise in async_disguises()])
+_is_func_async_cases_list = (
+    (_sync, False),
+    (_async, True),
+    *[(async_in_disguise, True) for async_in_disguise in async_disguises()],
+)
 
 
 _is_func_async_cases_ids = (
-    "sync", "async", "sync-typing.awaitable", "sync-awaitable-typed",
-    "sync-abc.awaitable", "sync-abc.awaitable-typed")
+    "sync",
+    "async",
+    "sync-typing.awaitable",
+    "sync-awaitable-typed",
+    "sync-abc.awaitable",
+    "sync-abc.awaitable-typed",
+)
 
 
-for_each_is_func_async_case = \
-    pytest.mark.parametrize(
-        "function, is_async", _is_func_async_cases_list,
-        ids=_is_func_async_cases_ids)
+for_each_is_func_async_case = pytest.mark.parametrize(
+    "function, is_async",
+    _is_func_async_cases_list,
+    ids=_is_func_async_cases_ids,
+)
 
 
-@pytest_cases.fixture(unpack_into="decorator, func, assert_result",
-                      params=((_sync, True), *_is_func_async_cases_list),
-                      ids=("sync-as-async", *_is_func_async_cases_ids))
+@pytest_cases.fixture(
+    unpack_into="decorator, func, assert_result",
+    params=((_sync, True), *_is_func_async_cases_list),
+    ids=("sync-as-async", *_is_func_async_cases_ids),
+)
 def retry_supported_cases(request):
     """Provides the working combos decorator / func / validation of result"""
     func, is_async = request.param
@@ -127,6 +137,7 @@ def retry_supported_cases(request):
 def _exception():
     class _AnotherError(Exception):
         pass
+
     return _AnotherError
 
 

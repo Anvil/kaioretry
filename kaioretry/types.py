@@ -1,6 +1,5 @@
 """Kaioretry helper types"""
 
-
 from typing import TypeAlias, TypeVar, ParamSpec, Any, overload
 from collections.abc import Callable, Coroutine, Awaitable
 
@@ -38,7 +37,9 @@ Function: TypeAlias = Callable[..., Any]
 UpdateDelayFunc: TypeAlias = Callable[[NonNegative], NonNegative]
 
 
-AioretryCoro: TypeAlias = Callable[FuncParam, Coroutine[None, None, FuncRetVal]]
+AioretryCoro: TypeAlias = Callable[
+    FuncParam, Coroutine[None, None, FuncRetVal]
+]
 
 AwaitableFunc: TypeAlias = Callable[FuncParam, Awaitable[FuncRetVal]]
 
@@ -48,7 +49,6 @@ AnyFunction: TypeAlias = (
 
 
 class AioretryProtocol(Protocol):
-
     """The :py:class:`typing.Protocol` describing the behaviour of the
     :py:func:`~kaioretry.aioretry` decorator.
 
@@ -58,14 +58,12 @@ class AioretryProtocol(Protocol):
     @overload
     def __call__(
         self, func: AwaitableFunc[FuncParam, FuncRetVal]
-    ) -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...  # pragma: nocover
+    ) -> AioretryCoro[FuncParam, FuncRetVal]: ...  # pragma: nocover
 
     @overload
     def __call__(
         self, func: Callable[FuncParam, FuncRetVal]
-    ) -> AioretryCoro[FuncParam, FuncRetVal]:
-        ...  # pragma: nocover
+    ) -> AioretryCoro[FuncParam, FuncRetVal]: ...  # pragma: nocover
 
     def __call__(
         self, func: AnyFunction[FuncParam, FuncRetVal]
