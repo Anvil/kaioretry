@@ -6,6 +6,7 @@
 ---
 
 ### New
+* add python 3.13 pipelines
 
 ### Changes
 * Convert pyproject to a more standard format
