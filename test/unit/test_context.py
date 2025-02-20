@@ -78,7 +78,7 @@ async def test_context_delay_first_unaltered(
      (5, 6, 6, lambda x: x + random.randint(3, 10))))
 async def test_context_max_delay(mocker, assert_length, sleep, delay,
                                  max_delay, expected, update_delay):
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     """context delay should not grow bigger than max_delay"""
     tries = 3
     update_delay_mock = mocker.MagicMock(side_effect=update_delay)
