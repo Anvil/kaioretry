@@ -22,7 +22,7 @@ from .context import Context
 from .decorator import Retry
 
 
-__version__ = "1.0.2"
+__version__ = "1.1.0"
 
 
 RETRY_PARAMS_DOCSTRING: Final[

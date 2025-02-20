@@ -6,6 +6,18 @@
 ---
 
 ### New
+
+### Changes
+
+### Fixes
+
+### Breaks
+
+
+## 1.1.0 - (2025-02-21)
+---
+
+### New
 * add python 3.13 pipelines
 
 ### Changes
@@ -16,8 +28,6 @@
 ### Fixes
 * fix decorators docstrings
 * fix pipelines
-
-### Breaks
 
 
 ## 1.0.2 - (2023-12-19)
