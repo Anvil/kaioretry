@@ -118,7 +118,7 @@ class _ContextIterator(Generic[SleepRetVal]):
         logger: logging.Logger,
         /,
     ) -> None:
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments, too-many-positional-arguments
         self.__identifier = identifier
         self.__sleep = sleep
         self.__delay = delay
