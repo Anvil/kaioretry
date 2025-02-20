@@ -13,6 +13,7 @@
 * Update to poetry 2.1
 
 ### Fixes
+* fix pipelines
 
 ### Breaks
 
