@@ -157,7 +157,7 @@ def retry(
     """Return a new retry decorator, suitable for regular functions. Functions
     decorated will transparently retry when a exception is raised.
 
-    %PARAMS%
+%PARAMS%
 
     :returns: a retry decorator for regular (non-coroutine) functions.
 
@@ -179,7 +179,7 @@ def aioretry(retry_obj: Retry) -> AioretryProtocol:
     :py:func:`asyncio.run` or to an `await` statement, even if given `func`
     parameter is not originally an async function to begin with.
 
-    %PARAMS%
+%PARAMS%
 
     :returns: a retry decorator that generates coroutines functions.
 

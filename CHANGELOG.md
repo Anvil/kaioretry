@@ -14,6 +14,7 @@
 * Update to poetry 2.1
 
 ### Fixes
+* fix decorators docstrings
 * fix pipelines
 
 ### Breaks
