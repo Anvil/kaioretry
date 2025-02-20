@@ -1,13 +1,18 @@
-[tool.poetry]
+[build-system]
+requires = ["poetry-core>=2.1.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
 name = "kaioretry"
 version = "1.0.2"
 description = "All in one retry and aioretry decorators"
-authors = ["Damien Nadé <anvil.github+kaioretry@livna.org>"]
-license = "LGPL-2.1-or-later"
-repository = "https://github.com/Anvil/kaioretry/"
 readme = "README.md"
+requires-python = ">=3.10"
+license = "LGPL-2.1-or-later"
 keywords = ["retry", "decorator", "asyncio"]
-documentation = "https://kaioretry.readthedocs.io/en/latest/"
+authors = [
+    {name = "Damien Nadé", email= "anvil.github+kaioretry@livna.org"}
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Framework :: AsyncIO",
@@ -22,12 +27,20 @@ classifiers = [
     "Typing :: Typed"
 ]
 
+[project.urls]
+Repository = "https://github.com/Anvil/kaioretry/"
+Issues = "https://github.com/Anvil/kaioretry/issues"
+Documentation = "https://kaioretry.readthedocs.io/en/latest/"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 typing_extensions = ">=4.5.0"
 mypy-extensions = ">=1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
 pytest = ">6"
 pytest-asyncio = "^0.20"
 pytest-mock = "^3.10"
@@ -41,10 +54,6 @@ optional = true
 sphinx = ">=7"
 sphinx-autodoc-typehints = ">=1.17"
 sphinx-rtd-theme = ">=2"
-
-[build-system]
-requires = ["poetry-core>=1.4.0"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 color_output = true

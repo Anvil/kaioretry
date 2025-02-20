@@ -8,6 +8,8 @@
 ### New
 
 ### Changes
+* Convert pyproject to a more standard format
+* Update to poetry 2.1
 
 ### Fixes
 
