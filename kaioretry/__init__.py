@@ -76,7 +76,7 @@ def _make_decorator(
         DefaultNamedArg(Jitter, "jitter"),  # noqa: F821
         DefaultNamedArg(NonNegative | None, "max_delay"),  # noqa: F821
         DefaultNamedArg(NonNegative, "min_delay"),  # noqa: F821
-        DefaultNamedArg(logging.Logger, "logger"),
+        DefaultNamedArg(logging.Logger, "logger"),  # noqa: F821
     ],  # noqa: F821
     FuncRetVal,
 ]:
