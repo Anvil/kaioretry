@@ -10,9 +10,15 @@
 ### Changes
 
 ### Fixes
-* fix previous commit...
 
 ### Breaks
+
+
+## 1.1.2 - (2025-02-21)
+---
+
+### Fixes
+* fix previous commit...
 
 
 ## 1.1.1 - (2025-02-21)
