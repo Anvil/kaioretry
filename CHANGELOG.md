@@ -9,6 +9,7 @@
 * drop python 3.10 support
 
 ### Changes
+* use ubuntu 24 readthedocs environment to build doc
 
 ### Fixes
 

@@ -9,10 +9,10 @@ sphinx:
   configuration: docs/source/conf.py
 
 build:
-  os: ubuntu-22.04
+  os: ubuntu-24.04
   tools:
-    python: "3.11"
+    python: "3.13"
   jobs:
-    pre_build:
-      - pip install poetry
-      - poetry install --with sphinx
+    install:
+      - python -m pip install poetry
+      - . "${READTHEDOCS_VIRTUALENV_PATH}/bin/activate" && python -m poetry install --with sphinx
