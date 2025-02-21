@@ -10,6 +10,7 @@
 ### Changes
 
 ### Fixes
+* add missing sphinx.configuration directive in readthedocs configuration file
 
 ### Breaks
 
