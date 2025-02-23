@@ -6,14 +6,22 @@
 ---
 
 ### New
-* drop python 3.10 support
 
 ### Changes
-* use ubuntu 24 readthedocs environment to build doc
 
 ### Fixes
 
 ### Breaks
+
+
+## 1.2.0 - (2025-02-23)
+---
+
+### New
+* drop python 3.10 support
+
+### Changes
+* use ubuntu 24 readthedocs environment to build doc
 
 
 ## 1.1.2 - (2025-02-21)
