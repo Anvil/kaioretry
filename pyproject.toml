@@ -7,7 +7,7 @@ name = "kaioretry"
 version = "1.1.2"
 description = "All in one retry and aioretry decorators"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "LGPL-2.1-or-later"
 keywords = ["retry", "decorator", "asyncio"]
 authors = [
@@ -23,7 +23,6 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.10",
     "Topic :: Software Development",
     "Typing :: Typed"
 ]
@@ -34,7 +33,6 @@ Issues = "https://github.com/Anvil/kaioretry/issues"
 Documentation = "https://kaioretry.readthedocs.io/en/latest/"
 
 [tool.poetry.dependencies]
-python = "^3.10"
 typing_extensions = ">=4.5.0"
 mypy-extensions = ">=1"
 
@@ -52,9 +50,9 @@ pytest-cov = ">=4"
 optional = true
 
 [tool.poetry.group.sphinx.dependencies]
-sphinx = ">=7"
-sphinx-autodoc-typehints = ">=1.17"
-sphinx-rtd-theme = ">=2"
+sphinx = ">=8.2"
+sphinx-autodoc-typehints = ">=3.1"
+sphinx-rtd-theme = ">=3"
 
 [tool.mypy]
 color_output = true

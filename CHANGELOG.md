@@ -6,6 +6,7 @@
 ---
 
 ### New
+* drop python 3.10 support
 
 ### Changes
 
