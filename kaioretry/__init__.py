@@ -110,7 +110,7 @@ def _make_decorator(func: Callable[[Retry], FuncRetVal]) -> Callable[
         elif isinstance(jitter, (tuple, list)):
 
             def jitter_f(delay: Number) -> Number:
-                return random.uniform(*cast(JitterTuple, jitter)) + delay
+                return random.uniform(*jitter) + delay
 
         else:
             raise TypeError(
