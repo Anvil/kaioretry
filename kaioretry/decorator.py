@@ -187,7 +187,7 @@ class Retry:
 
     def __success(self, func: Function) -> None:
         self.__log(
-            logging.INFO, "%s has succesfully completed", func.__qualname__
+            logging.DEBUG, "%s has succesfully completed", func.__qualname__
         )
 
     @staticmethod
