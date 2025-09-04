@@ -10,9 +10,15 @@
 ### Changes
 
 ### Fixes
-* set succes log to DEBUG to avoid useless noise
 
 ### Breaks
+
+
+## 1.2.1 - (2025-09-04)
+---
+
+### Fixes
+* set succes log to DEBUG to avoid useless noise
 
 
 ## 1.2.0 - (2025-02-23)
