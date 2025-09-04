@@ -10,6 +10,7 @@
 ### Changes
 
 ### Fixes
+* set succes log to DEBUG to avoid useless noise
 
 ### Breaks
 
